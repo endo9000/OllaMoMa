@@ -1,29 +1,29 @@
 {% load format_size %} {% load format_date %}
 
-<div class="bg-white px-4 rounded-b-lg">
-    <div class="flex flex-wrap py-4">
-        <div class="w-full md:w-1/2 xl:w-1/3 pb-2">
-            <div class="text-gray-400 text-xs">Model Name:</div>
+<div class="px-3 pt-2 bg-white rounded-b-lg">
+    <div class="flex flex-wrap">
+        <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+            <div class="text-xs text-gray-400">Model Name:</div>
             <div class="text-gray text-basis">{{ model.model }}</div>
         </div>
-        <div class="w-full md:w-1/2 xl:w-1/3 pb-2">
-            <div class="text-gray-400 text-xs">Parameter Size:</div>
+        <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+            <div class="text-xs text-gray-400">Parameter Size:</div>
             <div class="text-gray text-basis">{{ model.details.parameter_size }}</div>
         </div>
-        <div class="w-full md:w-1/2 xl:w-1/3 pb-2">
-            <div class="text-gray-400 text-xs">File Size:</div>
+        <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+            <div class="text-xs text-gray-400">File Size:</div>
             <div class="text-gray text-basis">{{ model.size | format_size }}</div>
         </div>
-        <div class="w-full md:w-1/2 xl:w-1/3 pb-2">
-            <div class="text-gray-400 text-xs">Quantization Level:</div>
+        <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+            <div class="text-xs text-gray-400">Quantization Level:</div>
             <div class="text-gray text-basis">{{ model.details.quantization_level }}</div>
         </div>
-        <div class="w-full md:w-1/2 xl:w-1/3 pb-2">
-            <div class="text-gray-400 text-xs">Model Family:</div>
+        <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+            <div class="text-xs text-gray-400">Model Family:</div>
             <div class="text-gray text-basis">{{ model.details.family }}</div>
         </div>
-        <div class="w-full md:w-1/2 xl:w-1/3 pb-2">
-            <div class="text-gray-400 text-xs">Last Modified:</div>
+        <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+            <div class="text-xs text-gray-400">Last Modified:</div>
             <div class="text-gray text-basis">{{ model.modified_at | format_date }}</div>
         </div>
     </div>
