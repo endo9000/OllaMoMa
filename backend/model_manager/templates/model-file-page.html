@@ -1,3 +1,17 @@
 <div class="px-2 pt-2 bg-white rounded-b-lg">
-    <textarea rows="8" class="w-full p-2 text-m rounded resize-none bg-gray-100">hi</textarea>
+    <textarea 
+        x-data="textareaData()"
+        rows="8" 
+        class="w-full p-2 bg-gray-100 rounded resize-none text-m" 
+        :id="$id('textarea-' + counter)"
+        :name="$id('textarea-' + counter)"
+    >hi</textarea>
 </div>
+
+<script>
+    function textareaData() {
+        return {
+            counter: 0,
+        }
+    }
+</script>
