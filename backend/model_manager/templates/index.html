@@ -1,0 +1,14 @@
+
+<!-- index.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        {% include 'search-bar.html' %}
+    </div>
+    <div>
+        {% for model in model_list %}
+            {% include 'model-card.html' with model=model %}
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,33 @@
+<div x-data="modelCard()" x-cloak class="pt-2 shadow-md">
+    <div class="flex justify-between items-center p-4 bg-white rounded-t-lg" :class="showModelInfoPage?'':'flex justify-between items-center p-4 bg-white rounded-lg'">
+        <span class="text-2xl">{{ model.name }}</span>
+        <button class="text-2xl px-2" @click="showModelInfoPage = !showModelInfoPage" x-text="showModelInfoPage?'-':'+'"></button>
+    </div>
+    <div x-show="showModelInfoPage" class="rounded-b-lg">
+        <div class="flex justify-between pl-2 pr-2 w-full bg-gray-100 text-lg">
+        <div>
+            <button class="py-1 px-1 hover:bg-gray-200 transition ease-in-out duration-300" @click="showInfoPage = true; showModelPage = false">INFO</button>
+            <button class="py-1 px-1 hover:bg-gray-200 transition ease-in-out duration-300" @click="showModelPage = true; showInfoPage = false">MODELFILE</button>
+        </div>
+        <div>
+            <button class="py-1 px-1 hover:bg-gray-200 transition ease-in-out duration-300">RENAME</button>
+            <button class="py-1 px-1 hover:bg-gray-200 transition ease-in-out duration-300">DUPLICATE</button>
+            <button class="py-1 px-1 hover:bg-gray-200 transition ease-in-out duration-300">DELETE</button>
+        </div>
+        </div>
+        <div>
+            <div x-show="showInfoPage" class="w-full">{% include 'model-info-page.html' %}</div>
+            <div x-show="showModelPage" class="w-full">{% include 'model-file-page.html' %}</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("modelCard", () => ({
+        showModelInfoPage: false,
+        showInfoPage: true,
+        showModelPage: false,
+        }));
+    });
+</script>
