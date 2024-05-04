@@ -9,7 +9,15 @@ download/clone the git repository and open it.
     cd backend
     python .\manage.py runserver
 
-open 
+open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 
-    127.0.0.1:8000
-in your browser.
+### In Progress
+search bar 
+model file
+rename
+duplicate
+delete 
+
+### Potential Features
+menu bar
+themes

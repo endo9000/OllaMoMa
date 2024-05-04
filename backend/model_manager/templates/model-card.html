@@ -1,32 +1,34 @@
-<div x-data="modelCard()" x-cloak class="pt-2 transition duration-500 ease-in-out shadow-md hover:shadow-lg">
-    <div class="flex justify-between px-3 py-4 bg-white rounded-t-lg cursor-pointer" @click="showModelInfoPage = !showModelInfoPage" :class="showModelInfoPage?'':'rounded-lg'">
-        <div class="text-xl">{{ model.name }}</div>
-        <button class="px-2 text-2xl" x-text="showModelInfoPage?'-':'+'"></button>
-    </div>
-
-    <div x-show="showModelInfoPage" class="overflow-hidden transition duration-500 rounded-b-lg">
-        <div class="flex justify-between w-full px-2 bg-slate-100 text-md">
-        <div>
-            <button class="px-1 py-1 transition duration-500 ease-in-out hover:bg-slate-200" @click="showInfoPage = true; showModelPage = false">INFO</button>
-            <button class="px-1 py-1 transition duration-500 ease-in-out hover:bg-slate-200" @click="showModelPage = true; showInfoPage = false">MODELFILE</button>
-        </div>
-        <div>
-            <button class="px-1 py-1 transition duration-500 ease-in-out hover:bg-slate-200">RENAME</button>
-            <button class="px-1 py-1 transition duration-500 ease-in-out hover:bg-slate-200">DUPLICATE</button>
-            <button class="px-1 py-1 transition duration-500 ease-in-out hover:bg-slate-200">DELETE</button>
-        </div>
-        </div>
-        <div>
-            <div x-show="showInfoPage" class="w-full">{% include 'model-info-page.html' %}</div>
-            <div x-show="showModelPage" class="w-full">{% include 'model-file-page.html' %}</div>
+<div x-data="modelCard()" x-cloak class="transition ease-in-out shadow-md duration-600 rounded-2xl hover:shadow-xl">
+    <div class="pt-2">
+        <div class="p-0 collapse collapse-plus ">
+            <input type="radio" name="my-accordion-1" checked="checked" /> 
+            <div class="flex justify-between bg-white cursor-pointer collapse-title">
+                <div class="text-xl font-medium text-gray-800">{{ model.name }}</div>
+            </div>
+            <div class="p-0 !pb-0 bg-white collapse-content">
+                <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t text-md">
+                    <div>
+                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200" @click="showInfoPage = true; showModelPage = false">INFO</button>
+                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200" @click="showModelPage = true; showInfoPage = false">MODELFILE</button>
+                    </div>
+                    <div>
+                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200">RENAME</button>
+                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200">DUPLICATE</button>
+                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200">DELETE</button>
+                    </div>
+                </div>
+                <div>
+                    <div x-show="showInfoPage" class="w-full">{% include 'model-info-page.html' %}</div>
+                    <div x-show="showModelPage" class="w-full">{% include 'model-file-page.html' %}</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
+    
 <script>
     document.addEventListener("alpine:init", () => {
         Alpine.data("modelCard", () => ({
-        showModelInfoPage: false,
         showInfoPage: true,
         showModelPage: false,
         }));
