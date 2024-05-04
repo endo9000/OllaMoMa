@@ -13,11 +13,12 @@ open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 
 ### In Progress
 search bar 
-model file
-rename
-duplicate
-delete 
+<br> model file
+<br> rename
+<br> duplicate
+<br> delete 
 
 ### Potential Features
 menu bar
-themes
+<br> themes
+<br> favourite models

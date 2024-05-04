@@ -3,14 +3,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div x-data="{ searchNeedle: ''}">
+<div x-data="{ searchNeedle: ''}">
     <div>
         {% include 'search-bar.html' %}
     </div>
-    <div>
+    <div class="">
         {% for model in model_list %}
             {% include 'model-card.html' with model=model %}
         {% endfor %}
     </div>
-  </div>
+</div>
 {% endblock %}

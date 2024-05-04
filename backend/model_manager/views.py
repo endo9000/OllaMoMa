@@ -5,11 +5,7 @@ from django.shortcuts import render
 def get_model_list():
     base_url = "http://localhost:11434"
     response = requests.get(f"{base_url}/api/tags")
-
-    model_list = []
-    for model in response.json()["models"]:
-        model_list.append(model)
-    return model_list
+    return list([model for model in response.json()["models"]])
 
 def index(request):
     model_list = get_model_list()
