@@ -1,5 +1,5 @@
 <div x-data="modelCard()" x-cloak class="transition ease-in-out shadow-md duration-600 rounded-2xl hover:shadow-xl">
-    <div class="pt-2">
+  <div class="pt-2" x-show="searchNeedle === '' || '{{ model.name }}'.toLowerCase().includes(searchNeedle.toLowerCase())">
         <div class="p-0 collapse collapse-plus ">
             <input type="radio" name="my-accordion-1" checked="checked" /> 
             <div class="flex justify-between bg-white cursor-pointer collapse-title">
