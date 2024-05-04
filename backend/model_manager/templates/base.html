@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ollama Model Manager</title>
     <script src="https://unpkg.com/alpinejs" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.5/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         [x-cloak] {
@@ -13,9 +14,11 @@
         }
     </style>
 </head>
-<body class="bg-slate-200">
-    <div class="max-w-2xl px-4 py-2 mx-auto">
-        {% block content %}{% endblock %}
+<body class="max-h-full bg-slate-200">
+    <div>
+        <div class="max-w-2xl px-4 py-2 mx-auto">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 </body>
 </html>

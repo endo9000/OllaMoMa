@@ -16,4 +16,8 @@ search bar
 model file
 rename
 duplicate
-delete
+delete 
+
+### Potential Features
+menu bar
+themes
