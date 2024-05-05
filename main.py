@@ -1,8 +1,8 @@
-# views.py
+# main.py
 import requests
 
 
-def get_model_file(model: str):
+def delete_model(model: str):
     base_url = "http://localhost:11434"
     api_url = f"{base_url}/api/delete"
     data = {"name": model}
@@ -10,9 +10,8 @@ def get_model_file(model: str):
     return response.status_code
 
 def main():
-    response = get_model_file("gemma:2b")
+    response = delete_model("gemma:2b")
     print(response)
-    
-    
+
 if __name__ == "__main__":
     main()
