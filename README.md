@@ -12,15 +12,17 @@ download/clone the git repository and open it.
 open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 
 ### Implemented Features
-search bar 
+    search bar 
 
 ### In Progress
-model file
-<br> rename
-<br> duplicate
-<br> delete 
+    model file
+    <br> rename
+    <br> duplicate
+    <br> delete 
 
 ### Potential Features
-menu bar
-<br> themes
-<br> favourite models
+    menu bar
+    <br> themes (darkmode)
+    <br> favourite models
+    <br> docker
+    <br> native desktop app
