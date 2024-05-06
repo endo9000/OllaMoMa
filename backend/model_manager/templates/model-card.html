@@ -39,12 +39,11 @@
             showModelPage: false,
             confirmDelete: false,
             deleteModel(modelName) {
-                fetch('/delete_model', {
+                fetch(`/delete-model/${modelName}/`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ name: modelName })
                 });
             }
         }));
