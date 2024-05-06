@@ -19,10 +19,13 @@ def get_model_list():
         response.raise_for_status()
         return [model for model in response.json()["models"]]
     except requests.exceptions.RequestException as e:
-        return e  # Return the exception instead of an empty list
+        return e
 
 
-def copy_model(request, model_name: str, new_model_name: str):
+def get_model_file(): ...
+
+
+def copy_model(model_name: str, new_model_name: str):
     """Copy a model from the API"""
     try:
         response = requests.post(
@@ -42,7 +45,7 @@ def copy_model(request, model_name: str, new_model_name: str):
         )
 
 
-def delete_model(request, model_name: str):
+def delete_model(model_name: str):
     """Delete a model from the API"""
     try:
         response = requests.delete(f"{BASE_URL}/api/delete", json={"name": model_name})
@@ -59,11 +62,11 @@ def delete_model(request, model_name: str):
         )
 
 
-def rename_model(request, model_name: str, new_model_name: str):
+def rename_model(model_name: str, new_model_name: str):
     """Rename a model from the API"""
     try:
-        copy_model(request, model_name, new_model_name)
-        delete_model(request, model_name)
+        copy_model(model_name, new_model_name)
+        delete_model(model_name)
         return HttpResponse(
             json.dumps({"status": "Model renamed successfully"}),
             content_type="application/json",
@@ -76,10 +79,10 @@ def rename_model(request, model_name: str, new_model_name: str):
         )
 
 
-def duplicate_model(request, model_name: str):
+def duplicate_model(model_name: str):
     """Duplicate a model from the API"""
     try:
-        copy_model(request, model_name, model_name + "_copy")
+        copy_model(model_name, model_name + "_copy")
         return HttpResponse(
             json.dumps({"status": "Model duplicated successfully"}),
             content_type="application/json",

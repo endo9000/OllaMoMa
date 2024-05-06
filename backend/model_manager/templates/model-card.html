@@ -1,20 +1,26 @@
-<div x-data="modelCard()" x-cloak class="transition ease-in-out shadow-md duration-600 rounded-xl hover:shadow-xl">
+<div x-data="modelCard()" x-cloak class="transition duration-500 ease-in-out shadow-md rounded-xl hover:shadow-xl">
     <div class="pt-2" x-show="searchNeedle === '' || '{{ model.name }}'.toLowerCase().includes(searchNeedle.toLowerCase()) || '{{ model.details.parameter_size }}' === searchNeedle">
         <div class="p-0 rounded-xl collapse collapse-plus">
-            <input type="radio" name="my-accordion-1"/> 
-            <div class="flex justify-between bg-white cursor-pointer collapse-title">
+            <input type="radio" name="model-card"/> 
+            <div class="flex justify-between bg-gray-100 cursor-pointer collapse-title">
                 <div class="text-xl font-medium text-gray-800">{{ model.name }}</div>
             </div>
-            <div class="p-0 !pb-0 bg-white collapse-content">
+            <div class="p-0 !pb-0 bg-gray-100 collapse-content">
                 <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t text-md">
                     <div>
-                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200" @click="showInfoPage = true; showModelPage = false">INFO</button>
-                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200" @click="showModelPage = true; showInfoPage = false">MODELFILE</button>
+                        <button class="px-1 transition duration-500 rounded btn-ghost" :class="{ 'btn-active': showInfoPage }" @click="showInfoPage = !showInfoPage; showModelPage = !showModelPage">
+                                INFO
+                        </button>
+                        <button class="px-1 transition duration-500 rounded btn-ghost" :class="{ 'btn-active': showModelPage }" @click="showModelPage = !showModelPage; showInfoPage = !showInfoPage">
+                                MODELFILE   
+                        </button>
                     </div>
                     <div>
-                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200">RENAME</button>
-                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200">DUPLICATE</button>
-                        <button class="px-1 transition duration-500 rounded hover:bg-slate-200">DELETE</button>
+                        <button class="px-1 transition duration-500 rounded btn-ghost">RENAME</button>
+                        <button class="px-1 transition duration-500 rounded btn-ghost">DUPLICATE</button>
+                        <button class="px-1 transition duration-500 rounded btn-ghost" x-on:click="confirmDelete = true" x-show="!confirmDelete">DELETE</button>
+                        <button class="px-1 transition duration-500 rounded btn-ghost" x-on:click="deleteModel('{{ model.name }}'); confirmDelete = false" x-show="confirmDelete">CONFIRM</button>
+                        
                     </div>
                 </div>
                 <div>
@@ -25,12 +31,22 @@
         </div>
     </div>
 </div>
-    
+
 <script>
     document.addEventListener("alpine:init", () => {
         Alpine.data("modelCard", () => ({
-        showInfoPage: true,
-        showModelPage: false,
+            showInfoPage: true,
+            showModelPage: false,
+            confirmDelete: false,
+            deleteModel(modelName) {
+                fetch('/delete_model', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: modelName })
+                });
+            }
         }));
     });
 </script>
