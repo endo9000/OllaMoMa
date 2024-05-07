@@ -3,7 +3,16 @@
         <div class="p-0 rounded-xl collapse collapse-plus">
             <input type="radio" name="model-card"/> 
             <div class="flex justify-between bg-gray-100 cursor-pointer collapse-title">
-                <div class="text-xl font-medium text-gray-800">{{ model.name }}</div>
+                <div class="text-xl font-medium text-gray-800" x-show="!confirmRename">{{ model.name }}</div>
+                {% comment %} 
+                trying to integrate the rename and copy function.
+                when one button is clicked the header should be replaced with an input field which then takes the new name and sends it to the server.
+                i already got the header to disappear but the input field wont be editable. might need to remove '@click.away="confirmRename = false"' to test it properly
+                {% endcomment %}
+
+                {% comment %} this is the inputfield. not sure if right. need another inputfield for the copy feature. 
+                <div class="text-xl font-medium text-gray-800" x-show="confirmRename"><input type="text" placeholder="{{ model.name }}" x-model="model.name"/></div>
+                {% endcomment %}
             </div>
             <div class="p-0 !pb-0 bg-gray-100 collapse-content">
                 <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t">
