@@ -4,6 +4,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def format_size(size):
     size = int(size)

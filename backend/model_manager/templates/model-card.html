@@ -8,19 +8,18 @@
             <div class="p-0 !pb-0 bg-gray-100 collapse-content">
                 <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t text-md">
                     <div>
-                        <button class="px-1 transition duration-500 rounded btn-ghost" :class="{ 'btn-active': showInfoPage }" @click="showInfoPage = !showInfoPage; showModelPage = !showModelPage">
-                                INFO
+                        <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showInfoPage }" @click="togglePage('info')">
+                            INFO
                         </button>
-                        <button class="px-1 transition duration-500 rounded btn-ghost" :class="{ 'btn-active': showModelPage }" @click="showModelPage = !showModelPage; showInfoPage = !showInfoPage">
-                                MODELFILE   
+                        <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showModelPage }" @click="togglePage('model')">
+                            MODEL FILE
                         </button>
                     </div>
                     <div>
-                        <button class="px-1 transition duration-500 rounded btn-ghost">RENAME</button>
-                        <button class="px-1 transition duration-500 rounded btn-ghost">DUPLICATE</button>
-                        <button class="px-1 transition duration-500 rounded btn-ghost" x-on:click="confirmDelete = true" x-show="!confirmDelete">DELETE</button>
-                        <button class="px-1 transition duration-500 rounded btn-ghost" x-on:click="deleteModel('{{ model.name }}'); confirmDelete = false" x-show="confirmDelete">CONFIRM</button>
-                        
+                        <button class="px-1 rounded btn btn-ghost btn-sm">RENAME</button>
+                        <button class="px-1 rounded btn btn-ghost btn-sm">COPY</button>
+                        <button class="px-1 rounded btn btn-ghost btn-sm" x-on:click="confirmDelete = true" x-show="!confirmDelete">DELETE</button>
+                        <button class="px-1 rounded btn btn-error btn-sm" x-on:click="deleteModel('{{ model.name }}'); confirmDelete = false" x-show="confirmDelete">CONFIRM</button>
                     </div>
                 </div>
                 <div>
@@ -32,17 +31,25 @@
     </div>
 </div>
 
+<!-- Add CSRF token -->
+{% csrf_token %}
+
 <script>
     document.addEventListener("alpine:init", () => {
         Alpine.data("modelCard", () => ({
             showInfoPage: true,
             showModelPage: false,
             confirmDelete: false,
+            togglePage(page) {
+                this.showInfoPage = page === 'info';
+                this.showModelPage = page === 'model';
+            },
             deleteModel(modelName) {
                 fetch(`/delete-model/${modelName}/`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}' // Add CSRF token to DELETE request
                     },
                 });
             }
