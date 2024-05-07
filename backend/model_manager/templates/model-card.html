@@ -6,20 +6,25 @@
                 <div class="text-xl font-medium text-gray-800">{{ model.name }}</div>
             </div>
             <div class="p-0 !pb-0 bg-gray-100 collapse-content">
-                <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t text-md">
+                <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t">
                     <div>
                         <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showInfoPage }" @click="togglePage('info')">
                             INFO
                         </button>
                         <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showModelPage }" @click="togglePage('model')">
-                            MODEL FILE
+                            MODELFILE
                         </button>
                     </div>
                     <div>
-                        <button class="px-1 rounded btn btn-ghost btn-sm">RENAME</button>
-                        <button class="px-1 rounded btn btn-ghost btn-sm">COPY</button>
-                        <button class="px-1 rounded btn btn-ghost btn-sm" x-on:click="confirmDelete = true" x-show="!confirmDelete">DELETE</button>
-                        <button class="px-1 rounded btn btn-error btn-sm" x-on:click="deleteModel('{{ model.name }}'); confirmDelete = false" x-show="confirmDelete">CONFIRM</button>
+                        {% comment %} <button class="px-1 rounded btn btn-ghost btn-sm">RENAME</button> {% endcomment %}
+                        <button class="px-1 rounded btn btn-ghost btn-sm" @click="confirmRename = true" x-show="!confirmRename">RENAME</button>
+                        <button class="px-1 rounded btn btn-success btn-sm" @click="renamemodel('{{ model.name }}'); confirmRename = false" @click.away="confirmRename = false" x-show="confirmRename">CONFIRM</button>
+                        {% comment %} <button class="px-1 rounded btn btn-ghost btn-sm">COPY</button> {% endcomment %}
+                        <button class="px-1 rounded btn btn-ghost btn-sm" @click="confirmCopy = true" x-show="!confirmCopy">COPY</button>
+                        <button class="px-1 rounded btn btn-success btn-sm" @click="copymodel('{{ model.name }}'); confirmCopy = false" @click.away="confirmCopy = false" x-show="confirmCopy">CONFIRM</button>
+                        {% comment %} <button class="px-1 rounded btn btn-ghost btn-sm">DELETE</button> {% endcomment %}
+                        <button class="px-1 rounded btn btn-ghost btn-sm" @click="confirmDelete = true" x-show="!confirmDelete">DELETE</button>
+                        <button class="px-1 rounded btn btn-error btn-sm" @click="deleteModel('{{ model.name }}'); confirmDelete = false" @click.away="confirmDelete = false" x-show="confirmDelete">CONFIRM</button>
                     </div>
                 </div>
                 <div>
@@ -39,11 +44,14 @@
         Alpine.data("modelCard", () => ({
             showInfoPage: true,
             showModelPage: false,
+            confirmRename: false,
+            confirmCopy: false,
             confirmDelete: false,
             togglePage(page) {
                 this.showInfoPage = page === 'info';
                 this.showModelPage = page === 'model';
             },
+            
             deleteModel(modelName) {
                 fetch(`/delete-model/${modelName}/`, {
                     method: 'DELETE',
