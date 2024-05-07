@@ -9,7 +9,7 @@
     </div>
     <div>
         {% for model in model_list %}
-            {% include 'model-card.html' with model=model %}
+            {% include 'model-card.html' with model=model.name %}
         {% endfor %}
     </div>
 </div>

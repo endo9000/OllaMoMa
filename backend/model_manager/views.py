@@ -8,8 +8,8 @@ BASE_URL = "http://localhost:11434"
 
 def index(request):
     """Render the index page with a list of models"""
-    model_list = get_model_list()
-    return render(request, "index.html", {"model_list": model_list})
+    models = get_model_list()
+    return render(request, "index.html", {"model_list": models})
 
 
 def get_model_list():
@@ -17,12 +17,26 @@ def get_model_list():
     try:
         response = requests.get(f"{BASE_URL}/api/tags")
         response.raise_for_status()
-        return [model for model in response.json()["models"]]
+        models = response.json()["models"]
+        return [
+            {
+                "name": model,
+            }
+            for model in models
+        ]
     except requests.exceptions.RequestException as e:
-        return e
+        return [{"error": str(e)}]
 
 
-def get_model_file(): ...
+def get_model_file(model_name):
+    """Get a modelfile from the API"""
+    try:
+        response = requests.get(f"{BASE_URL}/api/show")
+        response.raise_for_status()
+        modelfile = response.json()["modelfile"]
+        return modelfile
+    except requests.exceptions.RequestException as e:
+        return [{"error": str(e)}]
 
 
 def copy_model(model_name: str, new_model_name: str):
@@ -45,7 +59,7 @@ def copy_model(model_name: str, new_model_name: str):
         )
 
 
-def delete_model(model_name: str):
+def delete_model(request, model_name: str):
     """Delete a model from the API"""
     try:
         response = requests.delete(f"{BASE_URL}/api/delete", json={"name": model_name})
@@ -62,7 +76,7 @@ def delete_model(model_name: str):
         )
 
 
-def rename_model(model_name: str, new_model_name: str):
+def rename_model(request, model_name: str, new_model_name: str):
     """Rename a model from the API"""
     try:
         copy_model(model_name, new_model_name)
@@ -79,7 +93,7 @@ def rename_model(model_name: str, new_model_name: str):
         )
 
 
-def duplicate_model(model_name: str):
+def duplicate_model(request, model_name: str):
     """Duplicate a model from the API"""
     try:
         copy_model(model_name, model_name + "_copy")
