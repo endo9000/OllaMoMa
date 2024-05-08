@@ -2,35 +2,36 @@
     <div class="pt-2" x-show="searchNeedle === '' || '{{ model.name }}'.toLowerCase().includes(searchNeedle.toLowerCase()) || '{{ model.details.parameter_size }}' === searchNeedle">
         <div class="p-0 rounded-xl collapse collapse-plus">
             <input type="radio" name="model-card"/> 
-            <div class="flex justify-between bg-gray-100 cursor-pointer collapse-title">
-                <div class="text-xl font-medium text-gray-800" x-show="!confirmRename">{{ model.name }}</div>
+            <div class="flex bg-gray-100 cursor-pointer collapse-title">
+                <div class="text-xl font-medium text-gray-800" x-show="!confirmRename && !confirmCopy && !confirmDelete">{{ model.name }}</div>
                 {% comment %} 
                 trying to integrate the rename and copy function.
                 when one button is clicked the header should be replaced with an input field which then takes the new name and sends it to the server.
                 i already got the header to disappear but the input field wont be editable. might need to remove '@click.away="confirmRename = false"' to test it properly
                 {% endcomment %}
 
-                {% comment %} this is the inputfield. not sure if right. need another inputfield for the copy feature. 
-                <div class="text-xl font-medium text-gray-800" x-show="confirmRename"><input type="text" placeholder="{{ model.name }}" x-model="model.name"/></div>
-                {% endcomment %}
+                {% comment %} this is the inputfield. not sure if right. need another inputfield for the copy feature. {% endcomment %}
+                {% comment %} <div class="text-xl font-medium text-gray-800" > {% endcomment %}
+                <div class="z-[1000]">
+                    <input type="text" class="bg-gray-200 w-full max-w-lg input !outline-none rounded text-xl text-gray-800" x-show="confirmRename" x-model="newModelName" value="{{ model.name }}" placeholder="model name cannot be empty" required/>
+                    <div class="text-xl font-medium text-gray-800" x-show="confirmDelete">DELETE MODEL?</div>
+                </div>
             </div>
+                {% comment %} </div> {% endcomment %}
+
             <div class="p-0 !pb-0 bg-gray-100 collapse-content">
                 <div class="flex justify-between w-full px-2 py-2 text-gray-800 border-t">
                     <div>
-                        <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showInfoPage }" @click="togglePage('info')">
-                            INFO
-                        </button>
-                        <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showModelPage }" @click="togglePage('model')">
-                            MODELFILE
-                        </button>
+                        <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showInfoPage }" @click="togglePage('info')">INFO</button>
+                        <button class="px-1 rounded btn btn-ghost btn-sm" :class="{ 'btn-active': showModelPage }" @click="togglePage('model')">MODELFILE</button>
                     </div>
                     <div>
                         {% comment %} <button class="px-1 rounded btn btn-ghost btn-sm">RENAME</button> {% endcomment %}
                         <button class="px-1 rounded btn btn-ghost btn-sm" @click="confirmRename = true" x-show="!confirmRename">RENAME</button>
-                        <button class="px-1 rounded btn btn-success btn-sm" @click="renamemodel('{{ model.name }}'); confirmRename = false" @click.away="confirmRename = false" x-show="confirmRename">CONFIRM</button>
+                        <button class="px-1 rounded btn btn-success btn-sm" @click="renameModel('{{ model.name }}'); confirmRename = false" -@click.away="confirmRename = false" x-show="confirmRename">CONFIRM</button>
                         {% comment %} <button class="px-1 rounded btn btn-ghost btn-sm">COPY</button> {% endcomment %}
                         <button class="px-1 rounded btn btn-ghost btn-sm" @click="confirmCopy = true" x-show="!confirmCopy">COPY</button>
-                        <button class="px-1 rounded btn btn-success btn-sm" @click="copymodel('{{ model.name }}'); confirmCopy = false" @click.away="confirmCopy = false" x-show="confirmCopy">CONFIRM</button>
+                        <button class="px-1 rounded btn btn-success btn-sm" @click="copymodel('{{ model.name }}'); confirmCopy = false" -@click.away="confirmCopy = false" x-show="confirmCopy">CONFIRM</button>
                         {% comment %} <button class="px-1 rounded btn btn-ghost btn-sm">DELETE</button> {% endcomment %}
                         <button class="px-1 rounded btn btn-ghost btn-sm" @click="confirmDelete = true" x-show="!confirmDelete">DELETE</button>
                         <button class="px-1 rounded btn btn-error btn-sm" @click="deleteModel('{{ model.name }}'); confirmDelete = false" @click.away="confirmDelete = false" x-show="confirmDelete">CONFIRM</button>
@@ -59,6 +60,16 @@
             togglePage(page) {
                 this.showInfoPage = page === 'info';
                 this.showModelPage = page === 'model';
+            },
+            
+            renameModel(modelName) {
+                fetch(`/rename-model/${modelName}/${newModelName}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}' // Add CSRF token to DELETE request
+                    },
+                });
             },
             
             deleteModel(modelName) {
