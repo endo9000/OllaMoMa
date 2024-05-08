@@ -1,3 +1,4 @@
+# views.py
 import json
 import requests
 from django.http import HttpResponse
@@ -39,7 +40,7 @@ def get_model_file(model_name):
         return [{"error": str(e)}]
 
 
-def copy_model(model_name: str, new_model_name: str):
+def copy_model(request, model_name: str, new_model_name: str):
     """Copy a model from the API"""
     try:
         response = requests.post(
@@ -65,7 +66,7 @@ def delete_model(request, model_name: str):
         response = requests.delete(f"{BASE_URL}/api/delete", json={"name": model_name})
         response.raise_for_status()
         return HttpResponse(
-            json.dumps({"status": response.status_code}),
+            json.dumps({"status": "Model renamed successfully"}),
             content_type="application/json",
         )
     except requests.exceptions.RequestException as e:
@@ -79,7 +80,7 @@ def delete_model(request, model_name: str):
 def rename_model(request, model_name: str, new_model_name: str):
     """Rename a model from the API"""
     try:
-        copy_model(model_name, new_model_name)
+        copy_model(request, model_name, new_model_name)
         delete_model(request, model_name)
         return HttpResponse(
             json.dumps({"status": "Model renamed successfully"}),
@@ -93,10 +94,10 @@ def rename_model(request, model_name: str, new_model_name: str):
         )
 
 
-def duplicate_model(request, model_name: str):
+def duplicate_model(request, model_name: str, new_model_name: str):
     """Duplicate a model from the API"""
     try:
-        copy_model(model_name, model_name + "_copy")
+        copy_model(request, model_name, new_model_name)
         return HttpResponse(
             json.dumps({"status": "Model duplicated successfully"}),
             content_type="application/json",
