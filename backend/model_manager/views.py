@@ -1,4 +1,5 @@
 # views.py
+
 import json
 import requests
 from django.http import HttpResponse
@@ -12,6 +13,7 @@ def index(request):
     models = get_model_list()
     return render(request, "index.html", {"model_list": models})
 
+  
 
 def get_model_list():
     """Get a list of models from the API"""
@@ -28,6 +30,7 @@ def get_model_list():
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 
+      
 
 def get_model_file(model_name):
     """Get a modelfile from the API"""
@@ -38,6 +41,7 @@ def get_model_file(model_name):
         return modelfile
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
+
 
 
 def copy_model(request, model_name: str, new_model_name: str):
@@ -66,7 +70,7 @@ def delete_model(request, model_name: str):
         response = requests.delete(f"{BASE_URL}/api/delete", json={"name": model_name})
         response.raise_for_status()
         return HttpResponse(
-            json.dumps({"status": "Model renamed successfully"}),
+            json.dumps({"status": "Model deleted successfully"}),
             content_type="application/json",
         )
     except requests.exceptions.RequestException as e:
