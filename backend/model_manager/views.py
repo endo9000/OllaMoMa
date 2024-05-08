@@ -80,7 +80,7 @@ def rename_model(request, model_name: str, new_model_name: str):
     """Rename a model from the API"""
     try:
         copy_model(model_name, new_model_name)
-        delete_model(model_name)
+        delete_model(request, model_name)
         return HttpResponse(
             json.dumps({"status": "Model renamed successfully"}),
             content_type="application/json",
