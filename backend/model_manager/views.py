@@ -1,5 +1,4 @@
 # views.py
-
 import json
 import requests
 from django.http import HttpResponse
@@ -13,7 +12,6 @@ def index(request):
     models = get_model_list()
     return render(request, "index.html", {"model_list": models})
 
-  
 
 def get_model_list():
     """Get a list of models from the API"""
@@ -30,7 +28,6 @@ def get_model_list():
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 
-      
 
 def get_model_file(model_name):
     """Get a modelfile from the API"""

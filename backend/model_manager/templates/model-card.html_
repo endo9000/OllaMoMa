@@ -57,7 +57,6 @@
             confirmRename: false,
             confirmCopy: false,
             confirmDelete: false,
-            
             togglePage(page) {
                 this.showInfoPage = page === 'info';
                 this.showModelPage = page === 'model';
