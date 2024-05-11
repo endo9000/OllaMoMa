@@ -13,6 +13,7 @@ def index(request):
     models = get_model_list()
     return render(request, "index.html", {"model_list": models})
 
+  
 
 def get_model_list():
     """Get a list of models from the API"""
@@ -21,22 +22,15 @@ def get_model_list():
         response.raise_for_status()
         models = response.json()["models"]
         return [
-            dict(
-                model,
-                **{
-                    "showInfoPage": True,
-                    "showModelPage": False,
-                    "confirmRename": False,
-                    "confirmCopy": False,
-                    "confirmDelete": False,
-                },
-            )
+            {
+                "name": model,
+            }
             for model in models
         ]
-
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 
+      
 
 def get_model_file(model_name):
     """Get a modelfile from the API"""
@@ -47,6 +41,7 @@ def get_model_file(model_name):
         return modelfile
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
+
 
 
 def copy_model(request, model_name: str, new_model_name: str):
