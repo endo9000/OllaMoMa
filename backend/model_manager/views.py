@@ -43,7 +43,7 @@ def get_model_file(request, model_name: str):
         response = requests.post(f"{BASE_URL}/api/show", json={"name": model_name})
         response.raise_for_status()
         modelfile = response.json()["modelfile"]
-        return modelfile
+        return HttpResponse(modelfile)
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 

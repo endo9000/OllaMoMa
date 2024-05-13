@@ -35,7 +35,7 @@
                             <button class="px-1 rounded btn btn-ghost btn-sm" @click="model.confirmCopy = true" x-show="!model.confirmCopy">COPY</button>
                             <button class="px-1 rounded btn btn-success btn-sm" @click="model.duplicateModel('{{ model.name }}'); model.confirmCopy = false" @click.away="model.confirmCopy = false" x-show="model.confirmCopy">CONFIRM</button>
                             <button class="px-1 rounded btn btn-ghost btn-sm" @click="model.confirmDelete = true" x-show="!model.confirmDelete">DELETE</button>
-                            <button class="px-1 rounded btn btn-error btn-sm" @click="model.deleteModel('{{ model.name }}'); model.confirmDelete = false" @click.away="model.confirmDelete = false" x-show="model.confirmDelete">CONFIRM</button>
+                            <button class="px-1 rounded btn btn-error btn-sm" @click="deleteModel(model.name); model.confirmDelete = false" @click.away="model.confirmDelete = false" x-show="model.confirmDelete">CONFIRM</button>
                         </div>
                     </div>
                     <div>

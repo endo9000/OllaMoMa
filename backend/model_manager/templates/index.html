@@ -1,5 +1,7 @@
 <!-- index.html -->
+
 {% extends 'base.html' %} {% block content %}
+{% load static %}
 
 <div x-data="modelData">
     <div>{% include 'search-bar.html' %}</div>
@@ -8,55 +10,7 @@
 
 {{ model_list | json_script:"model_list" }}
 
-<script>
-    document.addEventListener("alpine:init", () => {
-        Alpine.data("modelData", () => ({
-        searchNeedle: "",
-        modelList: JSON.parse(document.getElementById("model_list").textContent),
-
-        formatDate(dateString) {
-            const isoString = `last modified: ${dateString}`;
-            const date = new Date(isoString.substring(15));
-            const now = new Date();
-            const ago = Math.floor((now - date) / (1000 * 3600 * 24));
-            let formattedDate = date.toLocaleDateString();
-            if (ago === 1) {
-            formattedDate += ` (1 day ago)`;
-            } else {
-            formattedDate += ` (${ago} days ago)`;
-            }
-            return formattedDate;
-        },
-
-        formatSize(size) {
-            const bytes = parseInt(size);
-            const mbSize = bytes / (1024 * 1024);
-            const gbSize = mbSize / 1024;
-            if (gbSize >= 1) {
-            return `${gbSize.toFixed(2)} GB`;
-            } else {
-            return `${mbSize.toFixed(2)} MB`;
-            }
-        },
-
-        fetchModelFile: (model) => {
-            if (model.modelFile === null) {
-            fetch(`get-model-file/${model.name}/`)
-                .then((response) => {
-                return response.body();
-                })
-                .then((file) => {
-                model.modelFile = file;
-                });
-            }
-        },
-        }));
-
-        Alpine.data("textareaData", () => ({
-        counter: 0,
-        }));
-    });
-</script>
+<script src="{% static 'js/ollamoma.js' %}"></script>
 
 {% endblock %}
 
