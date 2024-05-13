@@ -1,20 +1,4 @@
 <!-- index.html -->
-<<<<<<< Updated upstream
-{% extends 'base.html' %}
-
-{% block content %}
-<div x-data="{ searchNeedle: ''}">
-    <div>
-        {% include 'search-bar.html' %}
-    </div>
-    <div>
-        {% for model in model_list %}
-            {% include 'model-card.html' with model=model.name %}
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}
-=======
 {% extends 'base.html' %} {% block content %}
 
 <div x-data="modelData">
@@ -75,4 +59,4 @@
 </script>
 
 {% endblock %}
->>>>>>> Stashed changes
+
