@@ -1,4 +1,5 @@
 # views.py
+
 import json
 import requests
 from django.http import HttpResponse
@@ -20,11 +21,19 @@ def get_model_list():
         response.raise_for_status()
         models = response.json()["models"]
         return [
-            {
-                "name": model,
-            }
+            dict(
+                model,
+                **{
+                    "showInfoPage": True,
+                    "showModelPage": False,
+                    "confirmRename": False,
+                    "confirmCopy": False,
+                    "confirmDelete": False,
+                },
+            )
             for model in models
         ]
+
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 
@@ -38,7 +47,6 @@ def get_model_file(model_name):
         return modelfile
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
-
 
 
 def copy_model(request, model_name: str, new_model_name: str):
