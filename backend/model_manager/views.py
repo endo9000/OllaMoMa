@@ -20,19 +20,27 @@ def get_model_list():
         response.raise_for_status()
         models = response.json()["models"]
         return [
-            {
-                "name": model,
-            }
+            dict(
+                model,
+                **{
+                    "showInfoPage": True,
+                    "showModelPage": False,
+                    "confirmRename": False,
+                    "confirmCopy": False,
+                    "confirmDelete": False,
+                    "modelFile": None,
+                },
+            )
             for model in models
         ]
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 
 
-def get_model_file(model_name):
+def get_model_file(request, model_name: str):
     """Get a modelfile from the API"""
     try:
-        response = requests.get(f"{BASE_URL}/api/show")
+        response = requests.post(f"{BASE_URL}/api/show", json={"name": model_name})
         response.raise_for_status()
         modelfile = response.json()["modelfile"]
         return modelfile

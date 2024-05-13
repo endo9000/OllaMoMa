@@ -1,8 +1,6 @@
-<!-- model-info-page.html -->
-{% load format_size %} {% load format_date %}
-
 <div class="px-3 bg-gray-100">
     <div class="flex flex-wrap">
+<<<<<<< Updated upstream
         <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
             <div class="text-xs text-gray-400">Model Name:</div>
             <div class="text-black text-basis">{{ model.model }}</div>
@@ -27,5 +25,31 @@
             <div class="text-xs text-gray-400">Last Modified:</div>
             <div class="text-black text-basis">{{ model.modified_at | format_date }}</div>
         </div>
+=======
+    <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+        <div class="text-xs text-gray-400">Model Name:</div>
+        <div class="text-black text-basis" x-text="model.model"></div>
+>>>>>>> Stashed changes
+    </div>
+    <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+        <div class="text-xs text-gray-400">Parameter Size:</div>
+        <div class="text-black text-basis" x-text="model.details.parameter_size"></div>
+    </div>
+    <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+        <div class="text-xs text-gray-400">File Size:</div>
+        <div class="text-black text-basis" x-text="formatSize(model.size)"></div>
+    </div>
+    <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+        <div class="text-xs text-gray-400">Quantization Level:</div>
+        <div class="text-black text-basis"
+            x-text="model.details.quantization_level"></div>
+    </div>
+    <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+        <div class="text-xs text-gray-400">Model Family:</div>
+        <div class="text-black text-basis" x-text="model.details.family"></div>
+    </div>
+    <div class="w-full pb-2 md:w-1/2 xl:w-1/3">
+        <div class="text-xs text-gray-400">Last Modified:</div>
+        <div class="text-black text-basis" x-text="formatDate(model.modified_at)"></div>
     </div>
 </div>

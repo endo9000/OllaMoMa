@@ -1,18 +1,10 @@
-<!-- model-file-page.html -->
 <div class="px-2 pb-1">
     <textarea 
-        x-data="textareaData()"
-        rows="10" 
-        class="w-full px-2 py-1 text-gray-400 transition duration-500 ease-in-out bg-gray-200 rounded rounded-b-lg resize-none hover:text-gray-500 hover:bg-gray-300 focus:bg-gray-300 focus:outline-none focus:text-black"
-        :id="$id('textarea-' + counter)"
-        :name="$id('textarea-' + counter)"
-    >hi</textarea>
-</div>
+    x-data="textareaData()"
+    rows="10" 
+    class="w-full px-2 py-1 text-gray-400 transition duration-500 ease-in-out bg-gray-200 rounded rounded-b-lg resize-none hover:text-gray-500 hover:bg-gray-300 focus:bg-gray-300 focus:outline-none focus:text-black"
+    :id="$id('textarea-' + counter)"
+    :name="$id('textarea-' + counter)"
 
-<script>
-    function textareaData() {
-        return {
-            counter: 0,
-        }
-    }
-</script>
+>hi</textarea>
+</div>

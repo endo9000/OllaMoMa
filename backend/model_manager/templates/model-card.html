@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <!-- model-card.html -->
 <div x-data="modelCard()" x-cloak class="transition duration-500 ease-in-out shadow-md rounded-xl hover:shadow-xl">
     <div class="pt-2" x-show="searchNeedle === '' || '{{ model.name }}'.toLowerCase().includes(searchNeedle.toLowerCase()) || '{{ model.details.parameter_size }}' === searchNeedle">
@@ -95,3 +96,61 @@
         }));
     });
 </script>
+=======
+
+<template x-for="model in modelList" :key="model.name">
+    <div x-cloak
+            class="transition duration-500 ease-in-out shadow-md rounded-xl hover:shadow-xl">
+        <div class="pt-2"
+            x-show="searchNeedle === '' || model.name.toLowerCase().includes(searchNeedle.toLowerCase()) || model.details.parameter_size === searchNeedle">
+            <div class="p-0 rounded-xl collapse collapse-plus">
+                <input type="radio" name="model-card" />
+                <div class="flex bg-gray-100 collapse-title">
+                    <div class="text-xl font-medium text-black cursor-pointer"
+                            x-show="!model.confirmRename && !model.confirmCopy && !model.confirmDelete"
+                            x-text="model.name">
+                    </div>
+                    <div class="z-[1000]">
+                        <div class="text-xl font-medium text-black" x-show="model.confirmRename">input for rename here</div>
+                        <div class="text-xl font-medium text-black" x-show="model.confirmCopy">input for copy here</div>
+                        <div class="text-xl font-medium text-black" x-show="model.confirmDelete">DELETE MODEL?</div>
+                    </div>
+                </div>
+                <div class="p-0 !pb-0 bg-gray-100 collapse-content">
+                    <div class="flex justify-between w-full px-2 py-2 text-black border-t">
+                        <div>
+                            {% comment %} 2 BUTTONS {% endcomment %}
+                        <button class="px-1 rounded btn btn-ghost btn-sm"
+                                :class="{ 'btn-active': model.showInfoPage }"
+                                @click="model.showInfoPage = true; model.showModelPage = false">INFO</button>
+                        <button class="px-1 rounded btn btn-ghost btn-sm"
+                                :class="{ 'btn-active': model.showModelPage }"
+                                @click="fetchModelFile(model); model.showInfoPage = false; model.showModelPage = true">MODELFILE</button>
+                        </div>
+                        <div>
+                            {% comment %} 3 BUTTONS {% endcomment %}
+                            <button class="px-1 rounded btn btn-ghost btn-sm" @click="model.confirmRename = true" x-show="!model.confirmRename">RENAME</button>
+                            <button class="px-1 rounded btn btn-success btn-sm" @click="model.renameModel('{{ model.name }}'); model.confirmRename = false" @click.away="model.confirmRename = false" x-show="model.confirmRename">CONFIRM</button>
+                            <button class="px-1 rounded btn btn-ghost btn-sm" @click="model.confirmCopy = true" x-show="!model.confirmCopy">COPY</button>
+                            <button class="px-1 rounded btn btn-success btn-sm" @click="model.duplicateModel('{{ model.name }}'); model.confirmCopy = false" @click.away="model.confirmCopy = false" x-show="model.confirmCopy">CONFIRM</button>
+                            <button class="px-1 rounded btn btn-ghost btn-sm" @click="model.confirmDelete = true" x-show="!model.confirmDelete">DELETE</button>
+                            <button class="px-1 rounded btn btn-error btn-sm" @click="model.deleteModel('{{ model.name }}'); model.confirmDelete = false" @click.away="model.confirmDelete = false" x-show="model.confirmDelete">CONFIRM</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div x-show="model.showInfoPage" class="w-full">
+                            {% include 'model-info-page.html'%}
+                        </div>
+                    </div>
+                    <div>
+                        <div x-show="model.showModelPage" class="w-full">
+                            {% include 'model-file-page.html'%}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% comment %} </div> {% endcomment %}
+</template>
+>>>>>>> Stashed changes
