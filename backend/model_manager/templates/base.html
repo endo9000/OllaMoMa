@@ -3,21 +3,42 @@
 <!DOCTYPE html>
 <html lang="en" class="bg-transparent">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OllaMoMa</title>
-    <script src="https://unpkg.com/alpinejs" defer></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.5/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        [x-cloak] {
-            display: none;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OllaMoMa</title>
+<script src="https://unpkg.com/alpinejs" defer></script>
+<link
+    href="https://cdn.jsdelivr.net/npm/daisyui@4.10.5/dist/full.min.css"
+    rel="stylesheet"
+    type="text/css"
+/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    [x-cloak] {
+    display: none;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+    width: 0.5rem; /* adjust the scrollbar width */
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: gray; /* adjust the scrollbar thumb color */
+    border-radius: 10px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* adjust the scrollbar track color */
+    }
+
+    .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* adjust the scrollbar thumb hover color */
+    }
+</style>
 </head>
 <body class="max-h-full bg-gray-200">
-        <div class="max-w-2xl px-4 py-2 mx-auto">
-            {% block content %}{% endblock %}
-        </div>
+<div class="max-w-2xl px-4 py-2 mx-auto">
+    {% block content %}{% endblock %}
+</div>
 </body>
 </html>

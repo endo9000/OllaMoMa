@@ -48,7 +48,6 @@ def get_model_file(request, model_name: str):
         return [{"error": str(e)}]
 
 
-
 def copy_model(request, model_name: str, new_model_name: str):
     """Copy a model from the API"""
     try:
@@ -79,39 +78,6 @@ def delete_model(request, model_name: str):
             content_type="application/json",
         )
     except requests.exceptions.RequestException as e:
-        return HttpResponse(
-            json.dumps({"error": str(e)}),
-            status_code=500,
-            content_type="application/json",
-        )
-
-
-def rename_model(request, model_name: str, new_model_name: str):
-    """Rename a model from the API"""
-    try:
-        copy_model(request, model_name, new_model_name)
-        delete_model(request, model_name)
-        return HttpResponse(
-            json.dumps({"status": "Model renamed successfully"}),
-            content_type="application/json",
-        )
-    except Exception as e:
-        return HttpResponse(
-            json.dumps({"error": str(e)}),
-            status_code=500,
-            content_type="application/json",
-        )
-
-
-def duplicate_model(request, model_name: str, new_model_name: str):
-    """Duplicate a model from the API"""
-    try:
-        copy_model(request, model_name, new_model_name)
-        return HttpResponse(
-            json.dumps({"status": "Model duplicated successfully"}),
-            content_type="application/json",
-        )
-    except Exception as e:
         return HttpResponse(
             json.dumps({"error": str(e)}),
             status_code=500,
