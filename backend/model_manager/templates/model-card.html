@@ -8,61 +8,61 @@
                 <div class="p-0 rounded-xl collapse">
                     <input type="checkbox" name="model-card" @click="fetchModelFile(model)"/>
                     <div class="flex justify-between w-full bg-gray-100 collapse-title">
-                        <div class="text-xl font-medium text-black cursor-pointer"
+                        <div class="text-2xl font-semibold text-black cursor-pointer"
                             x-show="!model.confirmRename && !model.confirmCopy && !model.confirmDelete"
                             x-text="model.name">
                         </div>
-                        <div class="z-[1000]">
-                            <div class="text-xl font-medium text-black" x-show="model.confirmRename">input for rename here</div>
-                            <div class="text-xl font-medium text-black" x-show="model.confirmCopy">input for copy here</div>
-                            <div class="text-xl font-medium text-black" x-show="model.confirmDelete">DELETE MODEL?</div>
+                        <div class="z-[2]">
+                            <div class="text-2xl font-semibold text-black" x-show="model.confirmRename">input for rename here</div>
+                            <div class="text-2xl font-semibold text-black" x-show="model.confirmCopy">input for copy here</div>
+                            <div class="text-2xl font-semibold text-black" x-show="model.confirmDelete">DELETE MODEL?</div>
                         </div>
                     </div>
                     <div class="p-0 !pb-0 bg-gray-100 collapse-content">
-                        <div class="flex justify-between w-full px-2 py-2 text-black border-t">
+                        <div class="flex justify-between w-full px-2 py-1 text-black border-t">
                             <div>
                                 {% comment %} 2 BUTTONS {% endcomment %}
                             <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
                                     :class="{ 'btn-active': model.showInfoPage }"
                                     @click="model.showInfoPage = true; model.showModelPage = false">
-                                    <img class="" src="{% static 'icons/info.png' %}" alt="info">
+                                    <img class="" src="{% static 'icons/info1.svg' %}" alt="info">
                                 </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
                                     :class="{ 'btn-active': model.showModelPage }"
                                     @click="model.showInfoPage = false; model.showModelPage = true">
-                                    <img class="" src="{% static 'icons/poll-h.png' %}" alt="modelfile">
+                                    <img class="" src="{% static 'icons/file-text.svg' %}" alt="modelfile">
                                 </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
                                     @click="model.showInfoPage = false; model.showModelPage = true"
                                     x-show="model.showModelPage">
-                                <img class="" src="{% static 'icons/check-circle.png' %}" alt="Check">
+                                <img class="" src="{% static 'icons/check-circle.svg' %}" alt="accept">
                             </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
                                     @click="model.showInfoPage = false; model.showModelPage = true"
                                     x-show="model.showModelPage">
-                                <img class="" src="{% static 'icons/cross-circle.png' %}" alt="Cancel">
+                                <img class="" src="{% static 'icons/x-circle.svg' %}" alt="cancel">
                             </button>
 
                             </div>
                             <div>
                                 {% comment %} 3 BUTTONS {% endcomment %}
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmRename = true" x-show="!model.confirmRename">
-                                    <img class="" src="{% static 'icons/file-edit.png' %}" alt="rename">
+                                    <img class="" src="{% static 'icons/edit.svg' %}" alt="rename">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="model.renameModel('{{ model.name }}'); model.confirmRename = false" @click.away="model.confirmRename = false" x-show="model.confirmRename">
-                                    <img class="" src="{% static 'icons/file-edit.png' %}" alt="rename">
+                                    <img class="" src="{% static 'icons/edit.svg' %}" alt="rename">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmCopy = true" x-show="!model.confirmCopy">
-                                    <img class="" src="{% static 'icons/copy.png' %}" alt="copy">
+                                    <img class="" src="{% static 'icons/file-plus.svg' %}" alt="copy">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="model.duplicateModel('{{ model.name }}'); model.confirmCopy = false" @click.away="model.confirmCopy = false" x-show="model.confirmCopy">
-                                    <img class="" src="{% static 'icons/copy.png' %}" alt="copy">
+                                    <img class="" src="{% static 'icons/file-plus.svg' %}" alt="copy">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmDelete = true" x-show="!model.confirmDelete">
-                                    <img class="" src="{% static 'icons/delete.png' %}" alt="delete">
+                                    <img class="" src="{% static 'icons/file-minus.svg' %}" alt="delete">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-error btn-sm" @click="deleteModel(model.name); model.confirmDelete = false" @click.away="model.confirmDelete = false" x-show="model.confirmDelete">
-                                    <img class="" src="{% static 'icons/delete.png' %}" alt="delete">
+                                    <img class="" src="{% static 'icons/file-minus.svg' %}" alt="delete">
                                 </button>
                             </div>
                         </div>
