@@ -12,12 +12,13 @@ open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 
 ### Implemented Features
 - search bar 
-- delete (needs notification)
+- delete
 
 ### In Progress
 - model file
 - rename
 - duplicate
+- notifications
 
 ### Potential Features
 - menu bar 

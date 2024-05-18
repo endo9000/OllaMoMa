@@ -32,12 +32,12 @@
                                     @click="model.showInfoPage = false; model.showModelPage = true">
                                     <img class="" src="{% static 'icons/file-text.svg' %}" alt="modelfile">
                                 </button>
-                            <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
+                            <button class="w-8 h-8 px-1 rounded btn btn-success btn-sm"
                                     @click="model.showInfoPage = false; model.showModelPage = true"
                                     x-show="model.showModelPage">
                                 <img class="" src="{% static 'icons/check-circle.svg' %}" alt="accept">
                             </button>
-                            <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
+                            <button class="w-8 h-8 px-1 rounded btn btn-error btn-sm"
                                     @click="model.showInfoPage = false; model.showModelPage = true"
                                     x-show="model.showModelPage">
                                 <img class="" src="{% static 'icons/x-circle.svg' %}" alt="cancel">

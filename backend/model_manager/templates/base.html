@@ -16,26 +16,32 @@
 <link class="" rel="icon" type="image/png" href="{% static 'icons/favicon-round.png' %}">
 <style>
     [x-cloak] {
-    display: none;
+        display: none;
     }
 
     .scrollbar-thin::-webkit-scrollbar {
-    width: 0.5rem; /* adjust the scrollbar width */
+        width: 0.5rem; /* adjust the scrollbar width */
     }
 
     .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: gray; /* adjust the scrollbar thumb color */
-    border-radius: 10px;
-    }
-
-    .scrollbar-thin::-webkit-scrollbar-track {
-    background-color: #f0f0f0; /* adjust the scrollbar track color */
+        background-color: #9fa3a7; /* gray-300 (inactive); */
+        border-radius: 10px;
     }
 
     .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-    background-color: #ccc; /* adjust the scrollbar thumb hover color */
+        background-color: #4b5563; /* gray-600 (active); */
+        border-radius: 10px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background-color: transparent; /* make the scrollbar track transparent */
     }
 </style>
+
+
+
+
+
 </head>
 <body class="max-h-full bg-gray-200">
 <div class="max-w-2xl px-4 py-2 mx-auto">
