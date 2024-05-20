@@ -1,7 +1,6 @@
 document.addEventListener("alpine:init", () => {
     Alpine.data("modelData", () => ({
 
-
     searchNeedle: "",
     modelList: JSON.parse(document.getElementById("model_list").textContent).sort((a, b) => {
         if (a.name < b.name) return -1;
@@ -9,6 +8,50 @@ document.addEventListener("alpine:init", () => {
         return 0;
     }),
 
+    name_decending: false,
+    sort_by_name() {
+        const direction = this.name_decending? -1 : 1;
+        this.modelList.sort((a, b) => {
+            if (a.name < b.name) return direction;
+            if (a.name > b.name) return -direction;
+            return 0;
+        });
+        this.name_decending = !this.name_decending;
+    },
+    
+    filesize_decending: false,
+    sort_by_filesize() {
+        const direction = this.filesize_decending? -1 : 1;
+        this.modelList.sort((a, b) => {
+            if (a.size < b.size) return direction;
+            if (a.size > b.size) return -direction;
+            return 0;
+        });
+        this.filesize_decending = !this.filesize_decending;
+    },
+
+    paramsize_decending: false,
+    sort_by_paramsize() {
+        const direction = this.paramsize_decending? -1 : 1;
+        this.modelList.sort((a, b) => {
+            if (a.parameter_size < b.parameter_size) return direction;
+            if (a.parameter_size > b.parameter_size) return -direction;
+            return 0;
+        });
+        this.paramsize_decending = !this.paramsize_decending;
+    },
+
+    lastdate_decending: true,
+    sort_by_lastmod() {
+        const direction = this.lastdate_decending? -1 : 1;
+        this.modelList.sort((a, b) => {
+            if (a.modified_at < b.modified_at) return direction;
+            if (a.modified_at > b.modified_at) return -direction;
+            return 0;
+        });
+        this.lastdate_decending = !this.lastdate_decending;
+    },
+    
     formatDate(dateString) {
         const isoString = `last modified: ${dateString}`;
         const date = new Date(isoString.substring(15));
@@ -44,33 +87,34 @@ document.addEventListener("alpine:init", () => {
                 })
                 .then((file) => {
                     model.modelFile = file;
-                    // console.log('Received model file:', file); // Add this line
                 });
         }
     },
-    
 
     copyModel(modelName, newModelName) {
         fetch(`/copy-model/${modelName}/${newModelName}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}' // Add CSRF token to DELETE request
+                'X-CSRFToken': document.cookie.split("=")[1] // Add CSRF token to DELETE request
             },
         });
     },
-    
     
     deleteModel(modelName) {
         fetch(`/delete-model/${modelName}/`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}' // Add CSRF token to DELETE request
+                'X-CSRFToken': document.cookie.split("=")[1] // Add CSRF token to DELETE request
             },
+        }).catch((e) => {
+            console.error("ERROR:", e);
+        }).then(() => {            
+            console.log(`${modelName} deleted!`);
+            document.getElementById(modelName).remove();
         });
     },
-
 
     renameModel(modelName, newModelName) {
         copyModel(modelName, newModelName)

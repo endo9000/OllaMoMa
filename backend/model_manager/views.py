@@ -6,7 +6,6 @@ from django.shortcuts import render
 
 BASE_URL = "http://localhost:11434"
 
-
 def index(request):
     """Render the index page with a list of models"""
     models = get_model_list()
@@ -34,7 +33,8 @@ def get_model_list():
             for model in models
         ]
     except requests.exceptions.RequestException as e:
-        return [{"error": str(e)}]
+        print(e)
+        return []
 
 
 def get_model_file(request, model_name: str):

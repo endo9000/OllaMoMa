@@ -2,6 +2,7 @@
 
 {% extends 'base.html' %} {% block content %}
 {% load static %}
+{% csrf_token %}
 
 <div x-data="modelData">
     <div>{% include 'top-bar.html' %}</div>
@@ -11,6 +12,14 @@
 {{ model_list | json_script:"model_list" }}
 
 <script src="{% static 'js/ollamoma.js' %}"></script>
+
+<footer>
+    <div class="flex justify-center   mt-2 text-center">
+        <div>OLLAMA STATUS:</div>
+        <img class="ml-1 w-6 h-6" src="{% static 'icons/power.svg' %}" alt="status">
+    </div>
+</footer>
+
 
 {% endblock %}
 

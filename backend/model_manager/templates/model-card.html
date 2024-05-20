@@ -1,7 +1,7 @@
 <!-- model-card.html -->
 {% load static %}
 <template x-for="model in modelList" :key="model.name">
-    <div class="transition duration-500 ease-in-out shadow-md rounded-xl hover:shadow-xl">
+    <div class="transition duration-500 ease-in-out shadow-md rounded-xl hover:shadow-xl" x-bind:id="model.name">
         <div x-cloak>
             <div class="pt-2"
                 x-show="searchNeedle === '' || model.name.toLowerCase().includes(searchNeedle.toLowerCase()) || model.details.parameter_size === searchNeedle">
@@ -42,7 +42,6 @@
                                     x-show="model.showModelPage">
                                 <img class="" src="{% static 'icons/x-circle.svg' %}" alt="cancel">
                             </button>
-
                             </div>
                             <div>
                                 {% comment %} 3 BUTTONS {% endcomment %}

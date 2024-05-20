@@ -11,7 +11,8 @@ download/clone the git repository and open it.
 open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 
 ### Implemented Features
-- search bar 
+- search bar
+- sort menu
 - delete
 
 ### In Progress

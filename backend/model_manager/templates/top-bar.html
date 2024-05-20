@@ -19,25 +19,25 @@
                     <div class="form-control">
                         <label class="label cursor-pointer">
                             <span class="label-text">model name</span> 
-                            <input type="radio" name="filter" class="radio" checked />
+                            <input type="radio" name="filter" class="radio" @click="sort_by_name()" checked />
                         </label>
                     </div>
                     <div class="form-control">
                         <label class="label cursor-pointer">
                             <span class="label-text">file size</span> 
-                            <input type="radio" name="filter" class="radio"/>
+                            <input type="radio" name="filter" class="radio" @click="sort_by_filesize()"/>
                         </label>
                     </div>
                     <div class="form-control">
                         <label class="label cursor-pointer">
                             <span class="label-text">parameter size</span>
-                            <input type="radio" name="filter" class="radio"/>
+                            <input type="radio" name="filter" class="radio" @click="sort_by_paramsize()"/>
                         </label>
                     </div>
                     <div class="form-control">
                         <label class="label cursor-pointer">
                             <span class="label-text">last modified</span>
-                            <input type="radio" name="filter" class="radio"/>
+                            <input type="radio" name="filter" class="radio" @click="sort_by_lastmod()"/>
                         </label>
                     </div>
                 </ul>
