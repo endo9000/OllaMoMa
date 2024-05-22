@@ -1,11 +1,7 @@
 document.addEventListener("alpine:init", () => {
-    // Use regex to match the hash
-    const re = /q=(?<model>[\w\-/:]*)/;
-    const m = window.location.hash.match(re);
-
     Alpine.data("modelData", () => ({
 
-    searchNeedle: m? m.groups.model : "",
+    searchNeedle: "",
     modelList: JSON.parse(document.getElementById("model_list").textContent).sort((a, b) => {
         if (a.name < b.name) return -1;
         if (a.name > b.name) return 1;
