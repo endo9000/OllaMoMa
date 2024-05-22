@@ -7,7 +7,7 @@
         </div> {% endcomment %}
         <div class="mr-1 w-full transition duration-500 ease-in-out shadow-md rounded-xl hover:shadow-xl">
             <div x-data="" x-cloak class="flex !outline-none items-center pl-4 text-black bg-gray-100 input rounded-xl">
-                <input type="text" class="grow" :placeholder="`Search ${modelList.length} model${modelList.length === 1?'':'s'}`" x-model="searchNeedle" @keyup="window.location.hash=`q=${$event.target.value}`" />
+                <input type="text" class="grow" :placeholder="`Search ${modelList.length} model${modelList.length === 1?'':'s'}`" x-model="searchNeedle"/>
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" class="w-6 h-6 opacity-70" x-show="!searchNeedle" x-cloak viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" class="w-6 h-6 opacity-70 hover:bg-gray-200 cursor-pointer rounded-full" x-show="searchNeedle" x-cloak @click="searchNeedle = ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
             </div>
