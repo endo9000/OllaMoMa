@@ -6,15 +6,16 @@
             <div class="pt-2"
                 x-show="searchNeedle === '' || model.name.toLowerCase().includes(searchNeedle.toLowerCase()) || model.details.parameter_size === searchNeedle">
                 <div class="p-0 rounded-xl collapse">
-                    <input type="checkbox" name="model-card" @click="fetchModelFile(model)"/>
+                    <input type="checkbox"  @click="fetchModelFile(model)" />
                     <div class="flex justify-between w-full bg-gray-100 collapse-title">
                         <div class="text-2xl font-semibold text-black cursor-pointer"
                             x-show="!model.confirmRename && !model.confirmCopy && !model.confirmDelete"
                             x-text="model.name">
                         </div>
                         <div class="z-[2]">
+                            {% comment %} 
                             <div class="text-2xl font-semibold text-black" x-show="model.confirmRename">input for rename here</div>
-                            <div class="text-2xl font-semibold text-black" x-show="model.confirmCopy">input for copy here</div>
+                            <div class="text-2xl font-semibold text-black" x-show="model.confirmCopy">input for copy here</div> {% endcomment %}
                             <div class="text-2xl font-semibold text-black" x-show="model.confirmDelete">DELETE MODEL?</div>
                         </div>
                     </div>
@@ -35,7 +36,7 @@
                             <button class="w-8 h-8 px-1 rounded btn btn-success btn-sm"
                                     @click="saveModel(model.name);model.showInfoPage = false; model.showModelPage = true"
                                     x-show="model.showModelPage">
-                                <img class="" src="{% static 'icons/check-circle.svg' %}" alt="accept">
+                                <img class="" src="{% static 'icons/check-circle.svg' %}" title="Accept" alt="accept">
                             </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-error btn-sm"
                                     @click="resetModel(model.name, model.modelFile);model.showInfoPage = false; model.showModelPage = true "
@@ -45,23 +46,24 @@
                             </div>
                             <div>
                                 {% comment %} 3 BUTTONS {% endcomment %}
+                                <input type="text" x-model="model.newName" x-show="model.confirmRename" class="w-32 h-8 px-1 rounded input input-bordered input-sm"/>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmRename = true" x-show="!model.confirmRename">
-                                    <img class="" src="{% static 'icons/edit.svg' %}" alt="rename">
+                                    <img class="" src="{% static 'icons/edit.svg' %}" title="Rename" alt="rename">
                                 </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="model.renameModel('{{ model.name }}'); model.confirmRename = false" @click.away="model.confirmRename = false" x-show="model.confirmRename">
-                                    <img class="" src="{% static 'icons/edit.svg' %}" alt="rename">
+                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="renameModel(model.name, model.newName); model.confirmRename = false"  x-show="model.confirmRename">
+                                    <img class="" src="{% static 'icons/edit.svg' %}" title="Rename" alt="rename">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmCopy = true" x-show="!model.confirmCopy">
-                                    <img class="" src="{% static 'icons/file-plus.svg' %}" alt="copy">
+                                    <img class="" src="{% static 'icons/file-plus.svg' %}" title="Copy" alt="copy">
                                 </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="model.duplicateModel('{{ model.name }}'); model.confirmCopy = false" @click.away="model.confirmCopy = false" x-show="model.confirmCopy">
-                                    <img class="" src="{% static 'icons/file-plus.svg' %}" alt="copy">
+                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="model.duplicateModel('{{ model.name }}'); model.confirmCopy = false" x-show="model.confirmCopy">
+                                    <img class="" src="{% static 'icons/file-plus.svg' %}" title="Copy" alt="copy">
                                 </button>
                                 <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmDelete = true" x-show="!model.confirmDelete">
-                                    <img class="" src="{% static 'icons/file-minus.svg' %}" alt="delete">
+                                    <img class="" src="{% static 'icons/file-minus.svg' %}" title="Delete" alt="delete">
                                 </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-error btn-sm" @click="deleteModel(model.name); model.confirmDelete = false" @click.away="model.confirmDelete = false" x-show="model.confirmDelete">
-                                    <img class="" src="{% static 'icons/file-minus.svg' %}" alt="delete">
+                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-error btn-sm" @click="deleteModel(model.name); model.confirmDelete = false" x-show="model.confirmDelete">
+                                    <img class="" src="{% static 'icons/file-minus.svg' %}" title="Delete" alt="delete">
                                 </button>
                             </div>
                         </div>
@@ -82,3 +84,4 @@
         </div>
     </div>
 </template>
+                   

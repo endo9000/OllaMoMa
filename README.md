@@ -14,18 +14,18 @@ open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 - search bar
 - sort menu
 - delete
+- model file
 
 ### In Progress
-- model file
 - rename
 - duplicate
 - notifications
 
 ### Potential Features
-- menu bar 
+- menu bar
 - themes (darkmode)
 - docker
 - native desktop app
 - search bar with ollama library integration
 - favourite models
-- shortcuts 
+- shortcuts

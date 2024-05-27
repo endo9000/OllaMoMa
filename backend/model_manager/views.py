@@ -12,13 +12,21 @@ def index(request):
     models = get_model_list()
     return render(request, "index.html", {"model_list": models})
 
+def get_status(request):
+    """Get the status of Ollama"""
+    try:
+        response = requests.get(f"{BASE_URL}/")
+        response.raise_for_status()
+        return HttpResponse( 
+            json.dumps({"status": "Ollama is running"}),
+            content_type="application/json")
+    except Exception as e:
+        return [{"error": str(e)}]
+
 
 def get_model_list():
     """Get a list of models from the API"""
     try:
-        response = requests.get(f"{BASE_URL}/api/tags")
-        response.raise_for_status()
-        models = response.json()["models"]
         return [
             dict(
                 model,
@@ -31,9 +39,9 @@ def get_model_list():
                     "modelFile": None,
                 },
             )
-            for model in models
+            for model in ollama.list()["models"]
         ]
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(e)
         return []
 
@@ -41,10 +49,9 @@ def get_model_list():
 def get_model_file(request, model_name: str):
     """Get a modelfile from the API"""
     try:
-        response = requests.post(f"{BASE_URL}/api/show", json={"name": model_name})
-        response.raise_for_status()
-        modelfile = response.json()["modelfile"]
-        return HttpResponse(modelfile)
+        modelFile =  ollama.show(model_name).get("modelfile")
+        print(modelFile)
+        return HttpResponse(modelFile)
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
     
@@ -64,13 +71,9 @@ def save_model_file(request, model_name: str):
 def copy_model(request, model_name: str, new_model_name: str):
     """Copy a model from the API"""
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/copy",
-            json={"source": model_name, "destination": new_model_name},
-        )
-        response.raise_for_status()
+        ollama.copy(model_name, new_model_name)
         return HttpResponse(
-            json.dumps({"status": response.status_code}),
+            json.dumps({"status": "Model copied successfully"}),
             content_type="application/json",
         )
     except requests.exceptions.RequestException as e:
@@ -80,12 +83,10 @@ def copy_model(request, model_name: str, new_model_name: str):
             content_type="application/json",
         )
 
-
 def delete_model(request, model_name: str):
     """Delete a model from the API"""
     try:
-        response = requests.delete(f"{BASE_URL}/api/delete", json={"name": model_name})
-        response.raise_for_status()
+        ollama.delete(model_name)
         return HttpResponse(
             json.dumps({"status": "Model deleted successfully"}),
             content_type="application/json",
