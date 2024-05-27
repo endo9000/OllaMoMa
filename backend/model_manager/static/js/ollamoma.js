@@ -97,6 +97,29 @@ document.addEventListener("alpine:init", () => {
       })
     },
 
+    resetModel(modelName, modelFile) {
+      console.log("works till here!")
+      document.getElementById(`textarea-${modelName}-1`).value = modelFile
+    },
+
+    saveModel(modelName) {
+      console.log("works till here!")
+      const modelFile = document.getElementById(`textarea-${modelName}-1`).value
+      console.log("modelfile here!", modelFile)
+      fetch(`/save-model-file/${modelName}`, {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          "Content-Type": "application/json",
+          "X-CSRFToken": document.cookie.split("=")[1],
+        },
+        body: JSON.stringify({ modelFile: modelFile }),
+      })
+      .then(() => {
+        console.log("works till here too!")
+      })
+    },
+
     deleteModel(modelName) {
       fetch(`/delete-model/${modelName}/`, {
         method: "DELETE",

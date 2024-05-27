@@ -1,6 +1,7 @@
 # views.py
 import json
 import requests
+import ollama
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -44,6 +45,18 @@ def get_model_file(request, model_name: str):
         response.raise_for_status()
         modelfile = response.json()["modelfile"]
         return HttpResponse(modelfile)
+    except requests.exceptions.RequestException as e:
+        return [{"error": str(e)}]
+    
+def save_model_file(request, model_name: str):
+    """Get a modelfile from the API"""
+    try:
+        body = request.body.decode('utf-8')
+        json_body =  json.loads(body)
+        progress = ollama.create(model_name, modelfile=json_body['modelFile'], stream=True)
+        for line in progress:
+            print(line)
+        return HttpResponse("ok")
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
 
