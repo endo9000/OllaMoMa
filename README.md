@@ -13,13 +13,14 @@ open [127.0.0.1:8000](127.0.0.1:8000) in your browser.
 ### Implemented Features
 - search bar
 - sort menu
-- edit model file 
+- edit model file (need indicator while saving)
 - edit rename
 - edit duplicate
 - delete model
+- darkreader compatibility (extension)
 
 ### In Progress
-- notifications
+- notifications 
 
 ### Potential Features
 - menu bar

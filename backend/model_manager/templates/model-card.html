@@ -21,34 +21,39 @@
                     <div class="p-0 !pb-0 bg-gray-100 collapse-content">
                         <div class="flex justify-between w-full px-2 py-1 text-black border-t">
                             <div>
-                                {% comment %} 2 BUTTONS {% endcomment %}
-                            <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
-                                    :class="{ 'btn-active': model.showInfoPage }"
-                                    @click="model.showInfoPage = true; model.showModelPage = false">
-                                    <img class="" src="{% static 'icons/info1.svg' %}" title="Infos" alt="info">
-                                </button>
-                            <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
-                                    :class="{ 'btn-active': model.showModelPage }"
-                                    @click="model.showInfoPage = false; model.showModelPage = true">
-                                    <img class="" src="{% static 'icons/file-text.svg' %}" title="Modelfile" alt="modelfile">
-                                </button>
-                            <button class="w-8 h-8 px-1 rounded btn btn-success btn-sm"
-                                    @click="saveModelFile(model.name); model.showInfoPage = model.isModified = false; model.showModelPage = true"
-                                    x-show="model.showModelPage && model.isModified"> <!-- Add the conditional here -->
-                                <img class="" src="{% static 'icons/save.svg' %}" title="Save" alt="accept">
-                            </button>
-                            <button class="w-8 h-8 px-1 rounded btn btn-error btn-sm"
-                                    @click="resetModel(model.name, model.modelFile);model.showInfoPage = model.isModified = false; model.showModelPage = true "
-                                    x-show="model.showModelPage && model.isModified"> <!-- Add the conditional here -->
-                                <img class="" src="{% static 'icons/cancel.svg' %}" title="Cancel" alt="cancel">
-                            </button>
-                            </div>
+                        {% comment %} 2 BUTTONS {% endcomment %}
+                        <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
+                                :class="{ 'btn-active': model.showInfoPage }"
+                                @click="model.showInfoPage = true; model.showModelPage = false">
+                            <img class="" :class="{ 'invert': document.documentElement.getAttribute('data-darkreader-scheme') === 'dark' }"
+                                src="{% static 'icons/info1.svg' %}" title="Infos" alt="info">
+                        </button>
+                        <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
+                                :class="{ 'btn-active': model.showModelPage }"
+                                @click="model.showInfoPage = false; model.showModelPage = true">
+                            <img class="" :class="{ 'invert': document.documentElement.getAttribute('data-darkreader-scheme') === 'dark' }"
+                                src="{% static 'icons/file-text.svg' %}" title="Modelfile" alt="modelfile">
+                        </button>
+                        <button class="w-8 h-8 px-1 rounded btn btn-success btn-sm"
+                                @click="saveModelFile(model.name); model.showInfoPage = model.isModified = false; model.showModelPage = true"
+                                x-show="model.showModelPage && model.isModified">
+                            <img class="" src="{% static 'icons/save.svg' %}" title="Save" alt="accept">
+                        </button>
+                        <button class="w-8 h-8 px-1 rounded btn btn-error btn-sm"
+                                @click="resetModel(model.name, model.modelFile);model.showInfoPage = model.isModified = false; model.showModelPage = true "
+                                x-show="model.showModelPage && model.isModified">
+                            <img class="" src="{% static 'icons/cancel.svg' %}" title="Cancel" alt="cancel">
+                        </button>
+                        </div>
                             <div class="flex">
-                                <input type="text" x-model="model.name" x-show="model.isRename || model.isDuplicate" class="mx-1 pl-1 !w-120 rounded input input-bordered input-sm bg-transparent"/>
+                                <input type="text" x-model="model.newName" :x-model="model.name" x-show="model.isRename || model.isDuplicate" class="mx-1 pl-1 !w-120 rounded input input-bordered input-sm bg-transparent"/>
                                 
                                 <div class="">
-                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" @click="model.isEditing = model.isRename = true; model.isDuplicate = model.isDelete = false;" x-show="!model.isEditing">
-                                        <img src="{% static 'icons/edit.svg' %}" title="Rename" alt="rename">
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" 
+                                            :class="{ 'invert': document.documentElement.getAttribute('data-darkreader-scheme') === 'dark' }"
+                                            @click="model.isEditing = model.isRename = true; model.isDuplicate = model.isDelete = false;" 
+                                            x-show="!model.isEditing">
+                                        <img src="{% static 'icons/edit.svg' %}" title="Rename Model" alt="rename">
                                     </button>
                                     <button class="pl-1 w-8 h-8 px-1 rounded btn btn-success btn-sm" @click="renameModel(model.name, model.newName); model.isEditing = model.isRename = false;" x-show="model.isRename">
                                         <img src="{% static 'icons/edit.svg' %}" title="Confirm Rename" alt="confirm rename">
@@ -56,17 +61,23 @@
                                 </div>
                                 
                                 <div class="">
-                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" @click="model.isEditing = model.isDuplicate = true; model.isRename = model.isDelete = false;" x-show="!model.isEditing">
-                                        <img src="{% static 'icons/file-plus.svg' %}" title="Copy" alt="copy">
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" 
+                                            :class="{ 'invert': document.documentElement.getAttribute('data-darkreader-scheme') === 'dark' }"
+                                            @click="model.isEditing = model.isDuplicate = true; model.isRename = model.isDelete = false;" 
+                                            x-show="!model.isEditing">
+                                        <img src="{% static 'icons/file-plus.svg' %}" title="Duplicate Model" alt="duplicate">
                                     </button>
                                     <button class="pl-1 w-8 h-8 px-1 rounded btn btn-success btn-sm" @click="duplicateModel(model.name, model.newName); model.isEditing = model.isDuplicate = false;" x-show="model.isDuplicate">
-                                        <img src="{% static 'icons/file-plus.svg' %}" title="Confirm Copy" alt="confirm copy">
+                                        <img src="{% static 'icons/file-plus.svg' %}" title="Confirm Duplicate" alt="confirm duplicate">
                                     </button>
                                 </div>
                                 
                                 <div class="">
-                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" @click="model.isEditing = model.isDelete = true; model.isRename = model.isDuplicate = false;" x-show="!model.isEditing">
-                                        <img src="{% static 'icons/file-minus.svg' %}" title="Delete" alt="delete">
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" 
+                                            :class="{ 'invert': document.documentElement.getAttribute('data-darkreader-scheme') === 'dark' }"
+                                            @click="model.isEditing = model.isDelete = true; model.isRename = model.isDuplicate = false;" 
+                                            x-show="!model.isEditing">
+                                        <img src="{% static 'icons/file-minus.svg' %}" title="Delete Model" alt="delete">
                                     </button>
                                     <button class="pl-1 w-8 h-8 px-1 rounded btn btn-success btn-sm" @click="deleteModel(model.name); model.isDelete = false;" x-show="model.isDelete">
                                         <img src="{% static 'icons/file-minus.svg' %}" title="Confirm Delete" alt="confirm delete">

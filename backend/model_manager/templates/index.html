@@ -21,7 +21,7 @@
 </footer>
 <script>
     window.ollama_failed = false;
-    let maxRetries = 5; // add retry counter
+    let maxRetries = 5;
     let timer = 5;
     function getStatus(){
         fetch('get-status/').then(response => response.json()).then(data => {
@@ -56,7 +56,7 @@
             getStatus();
         }
     }
-    getStatus(); // initial call to getStatus
+    getStatus();
 </script>
 
     

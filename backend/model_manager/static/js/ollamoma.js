@@ -60,47 +60,40 @@ document.addEventListener("alpine:init", () => {
 
     sort(by) {
       this.sortBy = by;
+      const direction = this.sortDirection;
       switch (by) {
         case "name":
-          this.modelList.sort(
-            (a, b) => a.name.localeCompare(b.name) * this.sortDirection
-          );
+          this.modelList.sort((a, b) => a.name.localeCompare(b.name) * direction);
           this.nameDescending = !this.nameDescending;
           break;
         case "filesize":
-          this.modelList.sort((a, b) =>
-            this.filesizeDescending ? a.size - b.size : b.size - a.size
-          );
+          this.modelList.sort((a, b) => (direction === 1 ? a.size - b.size : b.size - a.size));
           this.filesizeDescending = !this.filesizeDescending;
           break;
         case "paramsize":
           this.modelList.sort((a, b) =>
-            this.paramsizeDescending
-              ? this.convertParamsToNumeric(a.details.parameter_size) -
-                this.convertParamsToNumeric(b.details.parameter_size)
-              : this.convertParamsToNumeric(b.details.parameter_size) -
-                this.convertParamsToNumeric(a.details.parameter_size)
+            (direction === 1
+              ? this.convertParamsToNumeric(a.details.parameter_size) - this.convertParamsToNumeric(b.details.parameter_size)
+              : this.convertParamsToNumeric(b.details.parameter_size) - this.convertParamsToNumeric(a.details.parameter_size))
           );
           this.paramsizeDescending = !this.paramsizeDescending;
           break;
         case "lastmod":
-          this.modelList.sort(
-            (a, b) =>
-              a.modified_at.localeCompare(b.modified_at) * this.sortDirection
-          );
+          this.modelList.sort((a, b) => a.modified_at.localeCompare(b.modified_at) * direction);
           this.lastdateDescending = !this.lastdateDescending;
           break;
       }
-      this.sortDirection = this.sortDirection * -1;
-    },
+      this.sortDirection = -this.sortDirection;
+    }
+    ,
 
-    getStatus(){
+    getStatus() {
       fetch(`get-status/`, {
         method: "GET",
         headers: {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json",
-        }
+        },
       }).then(() => {
         ollamaRunning = true;
       });
@@ -141,16 +134,14 @@ document.addEventListener("alpine:init", () => {
           "X-CSRFToken": this.getCookie("csrftoken"),
         },
         body: JSON.stringify({ modelFile: modelFile }),
-      }).then(() => {
-      });
+      }).then(() => {});
     },
 
     copyModel(modelName, newModelName) {
       console.log("copying model", modelName, newModelName);
-      if(!newModelName || newModelName === "")
-      {
-          alert("Please enter a new model name!");
-          return;
+      if (!newModelName || newModelName === "") {
+        alert("Please enter a new model name!");
+        return;
       }
       return fetch(`/copy-model/${modelName}/${newModelName}/`, {
         method: "POST",
@@ -163,37 +154,41 @@ document.addEventListener("alpine:init", () => {
     },
 
     deleteModel(modelName) {
-        fetch(`/delete-model/${modelName}/`, {
-          method: "DELETE",
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-CSRFToken": this.getCookie("csrftoken"),
-          },
-        })
-        .then(() => {
-          console.log(`${modelName} deleted!`);
-          document.getElementById(modelName).remove();
-        });
+      fetch(`/delete-model/${modelName}/`, {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          "X-CSRFToken": this.getCookie("csrftoken"),
+        },
+      }).then(() => {
+        console.log(`${modelName} deleted!`);
+        document.getElementById(modelName).remove();
+      });
     },
 
     renameModel(modelName, newModelName) {
-      this.copyModel(modelName, newModelName) 
-      .then((e) => {
-        console.log(`${modelName} copied to ${newModelName}!`, e);
-        this.deleteModel(modelName);
-      }).catch((e) => {
-        alert("Error duplicating model:", e);
-      });
+      this.copyModel(modelName, newModelName)
+        .then((e) => {
+          console.log(`${modelName} copied to ${newModelName}!`, e);
+          this.deleteModel(modelName);
+          alert(`${modelName} renamed to ${newModelName}!`, e);
+
+        })
+        .catch((e) => {
+          alert("Error duplicating model:", e);
+        });
     },
 
     duplicateModel(modelName, newModelName) {
-      this.copyModel(modelName, newModelName) 
-      .then((e) => {
-        console.log(`${modelName} copied to ${newModelName}!`, e);
-      }).catch((e) => {
-        alert("Error duplicating model:", e);
-      });
+      this.copyModel(modelName, newModelName)
+        .then((e) => {
+          console.log(`${modelName} copied to ${newModelName}!`, e);
+          alert(`${modelName} copied to ${newModelName}!`, e);
+        })
+        .catch((e) => {
+          alert("Error duplicating model:", e);
+        });
     },
 
     getCookie(name) {
@@ -202,6 +197,8 @@ document.addEventListener("alpine:init", () => {
       if (parts.length === 2) return parts.pop().split(";").shift();
     },
   }));
+
+  
 
   Alpine.data("textareaData", () => ({
     counter: 0,
