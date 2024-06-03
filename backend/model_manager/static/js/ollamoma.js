@@ -198,7 +198,6 @@ document.addEventListener("alpine:init", () => {
     },
   }));
 
-  
 
   Alpine.data("textareaData", () => ({
     counter: 0,
