@@ -10,5 +10,6 @@
     :value="model.modelFile ? model.modelFile : 'LOADING MODELFILE...' "
     autocorrect="off"
     autocomplete="off"
-></textarea>
+    @input="model.isModified = true"
+    ></textarea>
 </div>

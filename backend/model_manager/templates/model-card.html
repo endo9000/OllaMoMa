@@ -6,17 +6,16 @@
             <div class="pt-2"
                 x-show="searchNeedle === '' || model.name.toLowerCase().includes(searchNeedle.toLowerCase()) || model.details.parameter_size === searchNeedle">
                 <div class="p-0 rounded-xl collapse">
-                    <input type="checkbox"  @click="fetchModelFile(model)" />
+                    <input type="checkbox"  @click="fetchModelFile(model); selectedModel = model; model.isEditing = model.isRename = model.isDuplicate = model.isDelete = false; model.showInfoPage = true; model.showModelPage = false" />
                     <div class="flex justify-between w-full bg-gray-100 collapse-title">
                         <div class="text-2xl font-semibold text-black cursor-pointer"
-                            x-show="!model.confirmRename && !model.confirmCopy && !model.confirmDelete"
+                            x-show="!model.isEditing"
                             x-text="model.name">
                         </div>
-                        <div class="z-[2]">
-                            {% comment %} 
-                            <div class="text-2xl font-semibold text-black" x-show="model.confirmRename">input for rename here</div>
-                            <div class="text-2xl font-semibold text-black" x-show="model.confirmCopy">input for copy here</div> {% endcomment %}
-                            <div class="text-2xl font-semibold text-black" x-show="model.confirmDelete">DELETE MODEL?</div>
+                        <div>
+                            <div class="text-2xl font-semibold text-black" x-show="model.isRename">RENAME MODEL?</div>
+                            <div class="text-2xl font-semibold text-black" x-show="model.isDuplicate">COPY MODEL?</div>
+                            <div class="text-2xl font-semibold text-black" x-show="model.isDelete">DELETE MODEL?</div>
                         </div>
                     </div>
                     <div class="p-0 !pb-0 bg-gray-100 collapse-content">
@@ -26,46 +25,59 @@
                             <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
                                     :class="{ 'btn-active': model.showInfoPage }"
                                     @click="model.showInfoPage = true; model.showModelPage = false">
-                                    <img class="" src="{% static 'icons/info1.svg' %}" alt="info">
+                                    <img class="" src="{% static 'icons/info1.svg' %}" title="Infos" alt="info">
                                 </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-ghost btn-sm"
                                     :class="{ 'btn-active': model.showModelPage }"
                                     @click="model.showInfoPage = false; model.showModelPage = true">
-                                    <img class="" src="{% static 'icons/file-text.svg' %}" alt="modelfile">
+                                    <img class="" src="{% static 'icons/file-text.svg' %}" title="Modelfile" alt="modelfile">
                                 </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-success btn-sm"
-                                    @click="saveModel(model.name);model.showInfoPage = false; model.showModelPage = true"
-                                    x-show="model.showModelPage">
-                                <img class="" src="{% static 'icons/check-circle.svg' %}" title="Accept" alt="accept">
+                                    @click="saveModelFile(model.name); model.showInfoPage = model.isModified = false; model.showModelPage = true"
+                                    x-show="model.showModelPage && model.isModified"> <!-- Add the conditional here -->
+                                <img class="" src="{% static 'icons/save.svg' %}" title="Save" alt="accept">
                             </button>
                             <button class="w-8 h-8 px-1 rounded btn btn-error btn-sm"
-                                    @click="resetModel(model.name, model.modelFile);model.showInfoPage = false; model.showModelPage = true "
-                                    x-show="model.showModelPage">
-                                <img class="" src="{% static 'icons/x-circle.svg' %}" alt="cancel">
+                                    @click="resetModel(model.name, model.modelFile);model.showInfoPage = model.isModified = false; model.showModelPage = true "
+                                    x-show="model.showModelPage && model.isModified"> <!-- Add the conditional here -->
+                                <img class="" src="{% static 'icons/cancel.svg' %}" title="Cancel" alt="cancel">
                             </button>
                             </div>
-                            <div>
-                                {% comment %} 3 BUTTONS {% endcomment %}
-                                <input type="text" x-model="model.newName" x-show="model.confirmRename" class="w-32 h-8 px-1 rounded input input-bordered input-sm"/>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmRename = true" x-show="!model.confirmRename">
-                                    <img class="" src="{% static 'icons/edit.svg' %}" title="Rename" alt="rename">
-                                </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="renameModel(model.name, model.newName); model.confirmRename = false"  x-show="model.confirmRename">
-                                    <img class="" src="{% static 'icons/edit.svg' %}" title="Rename" alt="rename">
-                                </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmCopy = true" x-show="!model.confirmCopy">
-                                    <img class="" src="{% static 'icons/file-plus.svg' %}" title="Copy" alt="copy">
-                                </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-success btn-sm" @click="model.duplicateModel('{{ model.name }}'); model.confirmCopy = false" x-show="model.confirmCopy">
-                                    <img class="" src="{% static 'icons/file-plus.svg' %}" title="Copy" alt="copy">
-                                </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-ghost btn-sm" @click="model.confirmDelete = true" x-show="!model.confirmDelete">
-                                    <img class="" src="{% static 'icons/file-minus.svg' %}" title="Delete" alt="delete">
-                                </button>
-                                <button class="w-8 h-8 px-1 px-1 rounded btn btn-error btn-sm" @click="deleteModel(model.name); model.confirmDelete = false" x-show="model.confirmDelete">
-                                    <img class="" src="{% static 'icons/file-minus.svg' %}" title="Delete" alt="delete">
+                            <div class="flex">
+                                <input type="text" x-model="model.name" x-show="model.isRename || model.isDuplicate" class="mx-1 pl-1 !w-120 rounded input input-bordered input-sm bg-transparent"/>
+                                
+                                <div class="">
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" @click="model.isEditing = model.isRename = true; model.isDuplicate = model.isDelete = false;" x-show="!model.isEditing">
+                                        <img src="{% static 'icons/edit.svg' %}" title="Rename" alt="rename">
+                                    </button>
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-success btn-sm" @click="renameModel(model.name, model.newName); model.isEditing = model.isRename = false;" x-show="model.isRename">
+                                        <img src="{% static 'icons/edit.svg' %}" title="Confirm Rename" alt="confirm rename">
+                                    </button>
+                                </div>
+                                
+                                <div class="">
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" @click="model.isEditing = model.isDuplicate = true; model.isRename = model.isDelete = false;" x-show="!model.isEditing">
+                                        <img src="{% static 'icons/file-plus.svg' %}" title="Copy" alt="copy">
+                                    </button>
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-success btn-sm" @click="duplicateModel(model.name, model.newName); model.isEditing = model.isDuplicate = false;" x-show="model.isDuplicate">
+                                        <img src="{% static 'icons/file-plus.svg' %}" title="Confirm Copy" alt="confirm copy">
+                                    </button>
+                                </div>
+                                
+                                <div class="">
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-ghost btn-sm" @click="model.isEditing = model.isDelete = true; model.isRename = model.isDuplicate = false;" x-show="!model.isEditing">
+                                        <img src="{% static 'icons/file-minus.svg' %}" title="Delete" alt="delete">
+                                    </button>
+                                    <button class="pl-1 w-8 h-8 px-1 rounded btn btn-success btn-sm" @click="deleteModel(model.name); model.isDelete = false;" x-show="model.isDelete">
+                                        <img src="{% static 'icons/file-minus.svg' %}" title="Confirm Delete" alt="confirm delete">
+                                    </button>
+                                </div>
+                                
+                                <button class="ml-1 w-8 h-8 px-1 rounded btn btn-error btn-sm" @click="model.isEditing = model.isRename = model.isDuplicate = model.isDelete = false;" x-show="model.isEditing || model.isRename || model.isDuplicate || model.isDelete">
+                                    <img src="{% static 'icons/cancel.svg' %}" title="Cancel" alt="cancel">
                                 </button>
                             </div>
+                            
                         </div>
                             <div>
                                 <div x-show="model.showInfoPage" class="w-full">
@@ -84,4 +96,3 @@
         </div>
     </div>
 </template>
-                   
