@@ -15,34 +15,50 @@
 
 <footer>
     <div class="flex justify-center mt-2 text-center">
+        {% comment %} <img class="ml-1 w-6 h-6" src="{% static 'icons/power.svg' %}" alt="status"> {% endcomment %}
         <div id="ollama_status">OLLAMA STATUS:</div>
-        <img class="ml-1 w-6 h-6" src="{% static 'icons/power.svg' %}" alt="status">
     </div>
 </footer>
 <script>
-let failed = false; 
-document.getElementById('ollama_status').style.color =  'green';
-document.getElementById('ollama_status').innerText = 'OLLAMA STATUS: Ollama is running';
-function getStatus(){
-    fetch('get-status/').then(response => response.json()).then(data => {
-        if (failed) {
-            failed = false;
-            window.location.reload();
-        }
-        document.getElementById('ollama_status').style.color = data.status === 'Ollama is running' ? 'green' : 'red';
-        document.getElementById('ollama_status').innerText = 'OLLAMA STATUS: ' + data.status;
-    }).catch(err => {
-        failed = true;
-        document.getElementById('ollama_status').style.color = 'red';
-        document.getElementById('ollama_status').innerText = 'OLLAMA STATUS: Ollama is not running';
-    });
-}
+    window.ollama_failed = false;
+    let maxRetries = 5; // add retry counter
+    let timer = 5;
+    function getStatus(){
+        fetch('get-status/').then(response => response.json()).then(data => {
+            if (window.ollama_failed) {
+                window.ollama_failed = false;
+                window.location.reload();
+            }
+            document.getElementById('ollama_status').style.color = data.status === 'Ollama is running' ? 'green' : 'red';
+            document.getElementById('ollama_status').innerText = 'STATUS: ' + data.status;
 
-setInterval(() => {
-    getStatus();
-}, 5000);
+        }).catch(err => {
+            window.ollama_failed = true;
+            document.getElementById('ollama_status').style.color = 'red';
+            document.getElementById('ollama_status').innerText = 'STATUS: Ollama is not running';
+
+            if (maxRetries > 0) {
+                maxRetries--;
+                displayTimer();
+
+            } else {
+                document.getElementById('ollama_status').innerText = 'STATUS: Ollama is not running (giving up)';
+            }
+        });
+    }
+    
+    function displayTimer() {
+        document.getElementById('ollama_status').innerText += '.';
+        timer--;
+        if (timer > 0) {
+            setTimeout(displayTimer, 1000);
+        } else {
+            getStatus();
+        }
+    }
+    getStatus(); // initial call to getStatus
 </script>
 
-
+    
 {% endblock %}
 

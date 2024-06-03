@@ -5,6 +5,7 @@ document.addEventListener("alpine:init", () => {
       document.getElementById("model_list").textContent
     ).sort((a, b) => a.name.localeCompare(b.name)),
     sortBy: "name",
+    selectedModel: null,
     sortDirection: 1,
     nameDescending: false,
     filesizeDescending: false,
@@ -101,12 +102,12 @@ document.addEventListener("alpine:init", () => {
           "Content-Type": "application/json",
         }
       }).then(() => {
-        console.log("works till here too!");
         ollamaRunning = true;
       });
     },
 
     fetchModelFile(model) {
+      this.selectedModel = model;
       if (!model.modelFile) {
         fetch(`get-model-file/${model.name}/`)
           .then((response) => response.text())
@@ -124,17 +125,15 @@ document.addEventListener("alpine:init", () => {
     },
 
     resetModel(modelName, modelFile) {
-      console.log("works till here!");
       document.getElementById(`textarea-${modelName}-1`).value = modelFile;
     },
 
-    saveModel(modelName) {
-      console.log("works till here!");
+    saveModelFile(modelName) {
       const modelFile = document.getElementById(
         `textarea-${modelName}-1`
       ).value;
-      console.log("modelfile here!", modelFile);
-      fetch(`/save-model-file/${modelName}`, {
+      // console.log("modelfile here!", modelFile);
+      fetch(`/save-model-file/${modelName}/`, {
         method: "POST",
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -143,11 +142,16 @@ document.addEventListener("alpine:init", () => {
         },
         body: JSON.stringify({ modelFile: modelFile }),
       }).then(() => {
-        console.log("works till here too!");
       });
     },
 
     copyModel(modelName, newModelName) {
+      console.log("copying model", modelName, newModelName);
+      if(!newModelName || newModelName === "")
+      {
+          alert("Please enter a new model name!");
+          return;
+      }
       return fetch(`/copy-model/${modelName}/${newModelName}/`, {
         method: "POST",
         headers: {
@@ -178,6 +182,17 @@ document.addEventListener("alpine:init", () => {
       .then((e) => {
         console.log(`${modelName} copied to ${newModelName}!`, e);
         this.deleteModel(modelName);
+      }).catch((e) => {
+        alert("Error duplicating model:", e);
+      });
+    },
+
+    duplicateModel(modelName, newModelName) {
+      this.copyModel(modelName, newModelName) 
+      .then((e) => {
+        console.log(`${modelName} copied to ${newModelName}!`, e);
+      }).catch((e) => {
+        alert("Error duplicating model:", e);
       });
     },
 

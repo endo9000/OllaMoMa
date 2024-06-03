@@ -7,10 +7,12 @@ from django.shortcuts import render
 
 BASE_URL = "http://localhost:11434"
 
+
 def index(request):
     """Render the index page with a list of models"""
     models = get_model_list()
     return render(request, "index.html", {"model_list": models})
+
 
 def get_status(request):
     """Get the status of Ollama"""
@@ -50,10 +52,11 @@ def get_model_file(request, model_name: str):
     """Get a modelfile from the API"""
     try:
         modelFile =  ollama.show(model_name).get("modelfile")
-        print(modelFile)
+        # print(modelFile)
         return HttpResponse(modelFile)
     except requests.exceptions.RequestException as e:
         return [{"error": str(e)}]
+    
     
 def save_model_file(request, model_name: str):
     """Get a modelfile from the API"""
@@ -82,6 +85,7 @@ def copy_model(request, model_name: str, new_model_name: str):
             status_code=500,
             content_type="application/json",
         )
+
 
 def delete_model(request, model_name: str):
     """Delete a model from the API"""

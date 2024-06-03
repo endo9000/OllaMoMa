@@ -39,9 +39,11 @@
     }
 </style>
 </head>
-<body class="max-h-full bg-gray-200">
-    <div class="max-w-2xl px-4 py-2 mx-auto">
+<body class="max-h-full bg-gray-200" >
+    <div class="max-w-2xl px-4 py-2 mx-auto" @click="getStatus()">
         {% block content %}{% endblock %}
     </div>
+
+
 </body>
 </html>
