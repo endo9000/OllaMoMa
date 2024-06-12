@@ -1,4 +1,4 @@
-2# Ollama Model Manager (WIP)
+# Ollama Model Manager (WIP)
 
 a simple and minimalistic UI for managing Ollama models.
 
