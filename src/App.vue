@@ -23,6 +23,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,27 +40,33 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+const mode = useColorMode();
+
+
 import ollama from "ollama";
 
-const mode = useColorMode();
-const position = ref("top");
-const searchTerm = ref("");
 const modelList = ref([]);
-const filteredModelList = computed(() => {
-  if (!searchTerm.value) return modelList.value;
-  return modelList.value.filter((model) =>
-    model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-  );
-});
-
 async function getModelList() {
   const response = await ollama.list();
   console.log(response);
   modelList.value = response.models;
-  return modelList;
+  // return modelList;
 }
 
 getModelList();
+
+async function deleteModel(modelName: string) {
+  await ollama.delete(modelName);
+  getModelList();
+}
+
+const searchTerm = ref("");
+const filteredModelList = computed(() => {
+  if (!searchTerm.value) return modelList.value;
+  return modelList.value.filter((model) =>
+  model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+);
+});
 
 const formatSize = (bytes: number) => {
   if (bytes === 0) return "0 Bytes";
@@ -72,40 +83,81 @@ const capitalize = (str: string) => {
 
 <template>
   <div class="h-screen overflow-y-hidden bg-background">
-    <div class="flex justify-center max-w-md pt-2 mx-auto md:max-w-xl">
-      <div class="w-full pr-1">
-        <Input class="focus-visible:outline-none" v-model="searchTerm" placeholder="Search # models..." />
+    <Toaster position="top-center" />
+
+    <div class="flex justify-center max-w-md gap-1 pt-2 mx-auto md:max-w-xl">
+      <div class="w-full">
+        <Input
+          class="focus-visible:outline-none"
+          v-model="searchTerm"
+          :placeholder="`Search ${modelList.length} models...`"
+        />
       </div>
 
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child>
+            <Popover>
+              <PopoverTrigger class="pr-1">
                 <Button variant="">
                   <Icon
-                    icon="radix-icons:sun"
+                    icon="radix-icons:gear"
                     class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
                   />
                   <Icon
-                    icon="radix-icons:moon"
+                    icon="radix-icons:gear"
                     class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
                   />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem @click="mode = 'light'"
-                  >Light</DropdownMenuItem
-                >
-                <DropdownMenuItem @click="mode = 'dark'">Dark</DropdownMenuItem>
-                <DropdownMenuItem @click="mode = 'auto'"
-                  >System</DropdownMenuItem
-                >
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </PopoverTrigger>
+              <PopoverContent>
+                <Separator class="mb-4" label="THEMES" />
+                <ToggleGroup class="flex justify-between gap-1" type="single">
+                  <ToggleGroupItem @click="mode = 'light'">
+                    <Button>LIGHT</Button>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem @click="mode = 'dark'">
+                    <Button>DARK</Button>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem @click="mode = 'auto'">
+                    <Button>System</Button>
+                  </ToggleGroupItem>
+                </ToggleGroup>
+                <Separator class="my-4" label="BASE URL" />
+                <div class="flex justify-between gap-1">
+                  <Input
+                    class="focus-visible:outline-none"
+                    placeholder="Enter Base URL"
+                  />
+                  <Button>
+                    <Icon
+                      icon="radix-icons:check"
+                      class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                    />
+                    <Icon
+                      icon="radix-icons:check"
+                      class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                    />
+                  </Button>
+                </div>
+                <Separator class="my-4" label="DEBUG" />
+                <div class="flex justify-center">
+                  <Button
+                    variant="destructive"
+                    @click="
+                      () => {
+                        toast('Event has been triggered!', {});
+                      }
+                    "
+                  >
+                    Trigger Toast
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </TooltipTrigger>
           <TooltipContent>
-            <p>select theme</p>
+            <p>Settings</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -117,7 +169,9 @@ const capitalize = (str: string) => {
         type="single"
         collapsible
       >
-        <ScrollArea class="w-full h-full pl-2 pr-4 border rounded-md bg-background">
+        <ScrollArea
+          class="w-full h-full pl-2 pr-4 border rounded-md bg-background"
+        >
           <AccordionItem
             v-for="(model, index) in filteredModelList"
             :key="index"
@@ -132,7 +186,14 @@ const capitalize = (str: string) => {
                     <Tooltip>
                       <TooltipTrigger>
                         <TabsTrigger value="modelinfo_tab">
-                          Modelinfo
+                          <Icon
+                            icon="radix-icons:info-circled"
+                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                          />
+                          <Icon
+                            icon="radix-icons:info-circled"
+                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                          />
                         </TabsTrigger>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -145,7 +206,14 @@ const capitalize = (str: string) => {
                     <Tooltip>
                       <TooltipTrigger>
                         <TabsTrigger value="modelfile_tab">
-                          Modelfile
+                          <Icon
+                            icon="radix-icons:file-text"
+                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                          />
+                          <Icon
+                            icon="radix-icons:file-text"
+                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                          />
                         </TabsTrigger>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -159,7 +227,16 @@ const capitalize = (str: string) => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Button variant="ghost">Rename</Button>
+                        <Button variant="ghost">
+                          <Icon
+                            icon="radix-icons:pencil-2"
+                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                          />
+                          <Icon
+                            icon="radix-icons:pencil-2"
+                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                          />
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Rename</p>
@@ -170,7 +247,16 @@ const capitalize = (str: string) => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Button variant="ghost">Copy</Button>
+                        <Button variant="ghost">
+                          <Icon
+                            icon="radix-icons:clipboard"
+                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                          />
+                          <Icon
+                            icon="radix-icons:clipboard"
+                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                          />
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Copy</p>
@@ -181,7 +267,19 @@ const capitalize = (str: string) => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Button variant="ghost">Delete</Button>
+                        <Button
+                          variant="ghost"
+                          @click="() => deleteModel(model.name)"
+                        >
+                          <Icon
+                            icon="radix-icons:trash"
+                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                          />
+                          <Icon
+                            icon="radix-icons:trash"
+                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                          />
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Delete</p>
@@ -237,20 +335,38 @@ const capitalize = (str: string) => {
 
 <style scoped></style>
 
-<!-- <Toaster v-if="$screens.lg" position="bottom-right" />
-    <Toaster position="top-center" />
-    <div class="flex justify-center pb-2">
-      <Button
-        variant="destructive"
-        @click="
-          () => {
-            toast('Event has been triggered!', {});
-          }
-        "
-      >
-        Trigger Toast
-      </Button>
-    </div> -->
+<!-- <TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button variant="">
+            <Icon
+              icon="radix-icons:sun"
+              class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+            />
+            <Icon
+              icon="radix-icons:moon"
+              class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+            />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem @click="mode = 'light'"
+            >Light</DropdownMenuItem
+          >
+          <DropdownMenuItem @click="mode = 'dark'">Dark</DropdownMenuItem>
+          <DropdownMenuItem @click="mode = 'auto'"
+            >System</DropdownMenuItem
+          >
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </TooltipTrigger>
+    <TooltipContent>
+      <p>Themes</p>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider> -->
 
 <!-- <div class="py-2">
     <Button class="flex py-2 mx-auto" variant="">Button</Button>
@@ -274,15 +390,15 @@ const capitalize = (str: string) => {
   </div> -->
 
 <!-- <div class="flex justify-center py-2">
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>tooltip (hover)</TooltipTrigger>
-        <TooltipContent>
-          <p</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  </div> -->
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger>tooltip (hover)</TooltipTrigger>
+      <TooltipContent>
+        <p</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div> -->
 
 <!-- <div class="max-w-md py-2 mx-auto">
     <Input placeholder="Type your message here." />
