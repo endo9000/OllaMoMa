@@ -33,6 +33,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Toaster } from "@/components/ui/sonner";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
@@ -41,7 +42,6 @@ import {
 } from "@/components/ui/tooltip";
 
 const mode = useColorMode();
-
 
 import ollama from "ollama";
 
@@ -55,18 +55,42 @@ async function getModelList() {
 
 getModelList();
 
-async function deleteModel(modelName: string) {
-  await ollama.delete(modelName);
-  getModelList();
-}
-
 const searchTerm = ref("");
 const filteredModelList = computed(() => {
   if (!searchTerm.value) return modelList.value;
   return modelList.value.filter((model) =>
-  model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-);
+    model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
 });
+
+const sortBy = ref("");
+const sortedModelList = computed(() => {
+  if (!searchTerm.value) {
+    if (sortBy.value === "name") {
+      return modelList.value
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy.value === "size") {
+      return modelList.value.slice().sort((a, b) => a.size - b.size);
+    } else if (sortBy.value === "modified_at") {
+      return modelList.value
+        .slice()
+        .sort((a, b) => new Date(a.modified_at) - new Date(b.modified_at));
+    }
+    return modelList.value;
+  }
+  return modelList.value
+    .filter((model) =>
+      model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+    )
+    .slice()
+    .sort((a, b) => (a[sortBy.value] < b[sortBy.value] ? -1 : 1));
+});
+
+async function deleteModel(modelName: string) {
+  await ollama.delete(modelName);
+  getModelList();
+}
 
 const formatSize = (bytes: number) => {
   if (bytes === 0) return "0 Bytes";
@@ -83,7 +107,7 @@ const capitalize = (str: string) => {
 
 <template>
   <div class="h-screen overflow-y-hidden bg-background">
-    <Toaster position="top-center" />
+    <Toaster richColors position="top-center" />
 
     <div class="flex justify-center max-w-md gap-1 pt-2 mx-auto md:max-w-xl">
       <div class="w-full">
@@ -98,7 +122,7 @@ const capitalize = (str: string) => {
         <Tooltip>
           <TooltipTrigger>
             <Popover>
-              <PopoverTrigger class="pr-1">
+              <PopoverTrigger>
                 <Button variant="">
                   <Icon
                     icon="radix-icons:gear"
@@ -111,18 +135,32 @@ const capitalize = (str: string) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent>
-                <Separator class="mb-4" label="THEMES" />
+                <Separator class="mb-4" label="SORT BY" />
                 <ToggleGroup class="flex justify-between gap-1" type="single">
-                  <ToggleGroupItem @click="mode = 'light'">
-                    <Button>LIGHT</Button>
+                  <ToggleGroupItem value="name" @click="sortBy = 'name'">
+                    NAME
                   </ToggleGroupItem>
-                  <ToggleGroupItem @click="mode = 'dark'">
-                    <Button>DARK</Button>
+                  <ToggleGroupItem value="size" @click="sortBy = 'size'">
+                    SIZE
                   </ToggleGroupItem>
-                  <ToggleGroupItem @click="mode = 'auto'">
-                    <Button>System</Button>
+                  <ToggleGroupItem value="mod" @click="sortBy = 'modified_at'">
+                    LATEST
                   </ToggleGroupItem>
                 </ToggleGroup>
+
+                <Separator class="my-4" label="THEMES" />
+                <ToggleGroup class="flex justify-between gap-1" type="single">
+                  <ToggleGroupItem value="light" @click="mode = 'light'">
+                    LIGHT
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="dark" @click="mode = 'dark'">
+                    DARK
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="auto" @click="mode = 'auto'">
+                    SYSTEM
+                  </ToggleGroupItem>
+                </ToggleGroup>
+
                 <Separator class="my-4" label="BASE URL" />
                 <div class="flex justify-between gap-1">
                   <Input
@@ -140,6 +178,7 @@ const capitalize = (str: string) => {
                     />
                   </Button>
                 </div>
+
                 <Separator class="my-4" label="DEBUG" />
                 <div class="flex justify-center">
                   <Button
@@ -163,7 +202,7 @@ const capitalize = (str: string) => {
       </TooltipProvider>
     </div>
 
-    <div class="h-full py-2 pb-14">
+    <div class="h-full py-2 pb-20">
       <Accordion
         class="h-full max-w-md mx-auto md:max-w-xl"
         type="single"
@@ -173,7 +212,7 @@ const capitalize = (str: string) => {
           class="w-full h-full pl-2 pr-4 border rounded-md bg-background"
         >
           <AccordionItem
-            v-for="(model, index) in filteredModelList"
+            v-for="(model, index) in sortedModelList"
             :key="index"
             :value="`item-${index}`"
           >
@@ -320,7 +359,7 @@ const capitalize = (str: string) => {
 
                 <TabsContent value="modelfile_tab">
                   <Textarea
-                    class="focus-visible:outline-none min-h-32"
+                    class="focus-visible:outline-none min-h-48"
                     placeholder="Type your message here."
                   />
                 </TabsContent>
@@ -329,6 +368,10 @@ const capitalize = (str: string) => {
           </AccordionItem>
         </ScrollArea>
       </Accordion>
+      <div class="flex justify-center pt-1.5 text-sm">
+        made with love by endoLlama
+      </div>
+
     </div>
   </div>
 </template>
