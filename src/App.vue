@@ -64,18 +64,38 @@ const filteredModelList = computed(() => {
 });
 
 const sortBy = ref("name");
+const sortOrder = ref("asc"); // add this
+
 const sortedModelList = computed(() => {
   if (!searchTerm.value) {
     if (sortBy.value === "name") {
       return modelList.value
         .slice()
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => {
+          if (sortOrder.value === "asc") {
+            return a.name.localeCompare(b.name);
+          } else {
+            return b.name.localeCompare(a.name);
+          }
+        });
     } else if (sortBy.value === "size") {
-      return modelList.value.slice().sort((a, b) => a.size - b.size);
+      return modelList.value.slice().sort((a, b) => {
+        if (sortOrder.value === "asc") {
+          return b.size - a.size;
+        } else {
+          return a.size - b.size;
+        }
+      });
     } else if (sortBy.value === "modified_at") {
       return modelList.value
         .slice()
-        .sort((a, b) => new Date(b.modified_at) - new Date(a.modified_at));
+        .sort((a, b) => {
+          if (sortOrder.value === "asc") {
+            return new Date(a.modified_at) - new Date(b.modified_at);
+          } else {
+            return new Date(b.modified_at) - new Date(a.modified_at);
+          }
+        });
     }
     return modelList.value;
   }
@@ -84,8 +104,15 @@ const sortedModelList = computed(() => {
       model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
     )
     .slice()
-    .sort((a, b) => (a[sortBy.value] < b[sortBy.value] ? -1 : 1));
+    .sort((a, b) => {
+      if (sortOrder.value === "asc") {
+        return a[sortBy.value] < b[sortBy.value] ? -1 : 1;
+      } else {
+        return a[sortBy.value] < b[sortBy.value] ? 1 : -1;
+      }
+    });
 });
+
 
 async function deleteModel(request: { modelName: string }) {
   console.log(request.modelName);
@@ -116,10 +143,10 @@ const formatDateTime = (datetime) => {
   const diffTime = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  const dateString = date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+  const dateString = date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   });
 
   return `${dateString} (${diffDays} days ago)`;
@@ -158,13 +185,31 @@ const formatDateTime = (datetime) => {
               <PopoverContent>
                 <Separator class="mb-4" label="SORT BY" />
                 <ToggleGroup class="flex justify-between gap-1" type="single">
-                  <ToggleGroupItem value="name" @click="sortBy = 'name'">
+                  <ToggleGroupItem
+                    value="name"
+                    @click="
+                      sortBy = 'name';
+                      sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    "
+                  >
                     NAME
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="size" @click="sortBy = 'size'">
+                  <ToggleGroupItem
+                    value="size"
+                    @click="
+                      sortBy = 'size';
+                      sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    "
+                  >
                     SIZE
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="mod" @click="sortBy = 'modified_at'">
+                  <ToggleGroupItem
+                    value="mod"
+                    @click="
+                      sortBy = 'modified_at';
+                      sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                    "
+                  >
                     LATEST
                   </ToggleGroupItem>
                 </ToggleGroup>
