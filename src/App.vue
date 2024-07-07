@@ -43,14 +43,14 @@ import {
 
 const mode = useColorMode();
 
-import ollama from "ollama";
+import { Ollama } from "ollama";
+const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
 const modelList = ref([]);
 async function getModelList() {
   const response = await ollama.list();
   console.log(response);
   modelList.value = response.models;
-  // return modelList;
 }
 
 getModelList();
@@ -63,7 +63,7 @@ const filteredModelList = computed(() => {
   );
 });
 
-const sortBy = ref("");
+const sortBy = ref("name");
 const sortedModelList = computed(() => {
   if (!searchTerm.value) {
     if (sortBy.value === "name") {
@@ -75,7 +75,7 @@ const sortedModelList = computed(() => {
     } else if (sortBy.value === "modified_at") {
       return modelList.value
         .slice()
-        .sort((a, b) => new Date(a.modified_at) - new Date(b.modified_at));
+        .sort((a, b) => new Date(b.modified_at) - new Date(a.modified_at));
     }
     return modelList.value;
   }
@@ -87,8 +87,14 @@ const sortedModelList = computed(() => {
     .sort((a, b) => (a[sortBy.value] < b[sortBy.value] ? -1 : 1));
 });
 
-async function deleteModel(modelName: string) {
-  await ollama.delete(modelName);
+async function deleteModel(request: { modelName: string }) {
+  console.log(request.modelName);
+  await ollama.delete(request.modelName);
+  getModelList();
+}
+
+async function copyModel(modelName: string) {
+  await ollama.copy(modelName);
   getModelList();
 }
 
@@ -102,6 +108,21 @@ const formatSize = (bytes: number) => {
 
 const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const formatDateTime = (datetime) => {
+  const date = new Date(datetime);
+  const now = new Date();
+  const diffTime = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const dateString = date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
+  return `${dateString} (${diffDays} days ago)`;
 };
 </script>
 
@@ -185,11 +206,12 @@ const capitalize = (str: string) => {
                     variant="destructive"
                     @click="
                       () => {
+                        console.log('event triggered!');
                         toast('Event has been triggered!', {});
                       }
                     "
                   >
-                    Trigger Toast
+                    TRIGGER TOAST
                   </Button>
                 </div>
               </PopoverContent>
@@ -225,14 +247,7 @@ const capitalize = (str: string) => {
                     <Tooltip>
                       <TooltipTrigger>
                         <TabsTrigger value="modelinfo_tab">
-                          <Icon
-                            icon="radix-icons:info-circled"
-                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                          />
-                          <Icon
-                            icon="radix-icons:info-circled"
-                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                          />
+                          Modelinfo
                         </TabsTrigger>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -245,14 +260,7 @@ const capitalize = (str: string) => {
                     <Tooltip>
                       <TooltipTrigger>
                         <TabsTrigger value="modelfile_tab">
-                          <Icon
-                            icon="radix-icons:file-text"
-                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                          />
-                          <Icon
-                            icon="radix-icons:file-text"
-                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                          />
+                          Modelfile
                         </TabsTrigger>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -266,15 +274,11 @@ const capitalize = (str: string) => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Button variant="ghost">
-                          <Icon
-                            icon="radix-icons:pencil-2"
-                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                          />
-                          <Icon
-                            icon="radix-icons:pencil-2"
-                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                          />
+                        <Button
+                          variant="ghost"
+                          @click="() => console.log('rename', model.name)"
+                        >
+                          RN
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -286,15 +290,11 @@ const capitalize = (str: string) => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Button variant="ghost">
-                          <Icon
-                            icon="radix-icons:clipboard"
-                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                          />
-                          <Icon
-                            icon="radix-icons:clipboard"
-                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                          />
+                        <Button
+                          variant="ghost"
+                          @click="() => console.log('copy', model.name)"
+                        >
+                          CP
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -308,16 +308,9 @@ const capitalize = (str: string) => {
                       <TooltipTrigger>
                         <Button
                           variant="ghost"
-                          @click="() => deleteModel(model.name)"
+                          @click="() => console.log('remove', model.name)"
                         >
-                          <Icon
-                            icon="radix-icons:trash"
-                            class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                          />
-                          <Icon
-                            icon="radix-icons:trash"
-                            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                          />
+                          RM
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -334,6 +327,9 @@ const capitalize = (str: string) => {
                     </li>
                     <li class="px-2 py-1 m-1 border rounded w-fit">
                       Model Size: {{ formatSize(model.size) }}
+                    </li>
+                    <li class="px-2 py-1 m-1 border rounded w-fit">
+                      Modified At: {{ formatDateTime(model.modified_at) }}
                     </li>
 
                     <li
@@ -360,7 +356,7 @@ const capitalize = (str: string) => {
                 <TabsContent value="modelfile_tab">
                   <Textarea
                     class="focus-visible:outline-none min-h-48"
-                    placeholder="Type your message here."
+                    placeholder="Modelfile loads here..."
                   />
                 </TabsContent>
               </Tabs>
@@ -371,7 +367,6 @@ const capitalize = (str: string) => {
       <div class="flex justify-center pt-1.5 text-sm">
         made with love by endoLlama
       </div>
-
     </div>
   </div>
 </template>
