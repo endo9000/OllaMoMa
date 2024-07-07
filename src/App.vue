@@ -149,7 +149,13 @@ const formatDateTime = (datetime) => {
     day: "2-digit",
   });
 
-  return `${dateString} (${diffDays} days ago)`;
+  if (diffDays === 0) {
+    return `${dateString} (today)`;
+  } else if (diffDays === 1) {
+    return `${dateString} (yesterday)`;
+  } else {
+    return `${dateString} (${diffDays} days ago)`;
+  }
 };
 </script>
 
