@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeUnmount } from "vue";
 
 import { useColorMode } from "@vueuse/core";
 import { Icon } from "@iconify/vue";
@@ -12,6 +12,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,11 +57,21 @@ const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 const modelList = ref([]);
 async function getModelList() {
   const response = await ollama.list();
-  console.log(response);
+  // console.log(response);
   modelList.value = response.models;
 }
-
 getModelList();
+
+const processList = ref([]);
+async function getProcessList() {
+  const response = await ollama.ps();
+  // console.log(response);
+  processList.value = [...response.models];
+}
+getProcessList();
+
+let intervalId = null;
+intervalId = setInterval(getProcessList, 1000);
 
 const searchTerm = ref("");
 const filteredModelList = computed(() => {
@@ -64,20 +82,17 @@ const filteredModelList = computed(() => {
 });
 
 const sortBy = ref("name");
-const sortOrder = ref("asc"); // add this
-
+const sortOrder = ref("asc");
 const sortedModelList = computed(() => {
   if (!searchTerm.value) {
     if (sortBy.value === "name") {
-      return modelList.value
-        .slice()
-        .sort((a, b) => {
-          if (sortOrder.value === "asc") {
-            return a.name.localeCompare(b.name);
-          } else {
-            return b.name.localeCompare(a.name);
-          }
-        });
+      return modelList.value.slice().sort((a, b) => {
+        if (sortOrder.value === "asc") {
+          return a.name.localeCompare(b.name);
+        } else {
+          return b.name.localeCompare(a.name);
+        }
+      });
     } else if (sortBy.value === "size") {
       return modelList.value.slice().sort((a, b) => {
         if (sortOrder.value === "asc") {
@@ -87,15 +102,13 @@ const sortedModelList = computed(() => {
         }
       });
     } else if (sortBy.value === "modified_at") {
-      return modelList.value
-        .slice()
-        .sort((a, b) => {
-          if (sortOrder.value === "asc") {
-            return new Date(a.modified_at) - new Date(b.modified_at);
-          } else {
-            return new Date(b.modified_at) - new Date(a.modified_at);
-          }
-        });
+      return modelList.value.slice().sort((a, b) => {
+        if (sortOrder.value === "asc") {
+          return new Date(a.modified_at) - new Date(b.modified_at);
+        } else {
+          return new Date(b.modified_at) - new Date(a.modified_at);
+        }
+      });
     }
     return modelList.value;
   }
@@ -112,7 +125,6 @@ const sortedModelList = computed(() => {
       }
     });
 });
-
 
 async function deleteModel(request: { modelName: string }) {
   console.log(request.modelName);
@@ -157,13 +169,49 @@ const formatDateTime = (datetime) => {
     return `${dateString} (${diffDays} days ago)`;
   }
 };
+
+const timeLeft = (expiresAt) => {
+  const expiresAtDate = new Date(expiresAt);
+  const now = new Date();
+  const timeLeft = expiresAtDate - now;
+
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  const timeLeftArray = [];
+
+  if (days > 0) {
+    timeLeftArray.push(`${days} days`);
+  }
+  if (hours > 0) {
+    timeLeftArray.push(`${hours} hours`);
+  }
+  if (minutes > 0) {
+    timeLeftArray.push(`${minutes} minutes`);
+  }
+  if (seconds > 0) {
+    timeLeftArray.push(`${seconds} seconds`);
+  }
+
+  return timeLeftArray.join(", ");
+};
+
+onBeforeUnmount(() => {
+  clearInterval(intervalId);
+});
 </script>
 
 <template>
   <div class="h-screen overflow-y-hidden bg-background">
     <Toaster richColors position="top-center" />
 
-    <div class="flex justify-center max-w-md gap-1 pt-2 mx-auto md:max-w-xl">
+    <div
+      class="flex justify-center flex-auto max-w-md gap-1 pt-2 mx-auto md:max-w-xl"
+    >
       <div class="w-full">
         <Input
           class="focus-visible:outline-none"
@@ -275,15 +323,48 @@ const formatDateTime = (datetime) => {
       </TooltipProvider>
     </div>
 
-    <div class="h-full py-2 pb-20">
-      <Accordion
-        class="h-full max-w-md mx-auto md:max-w-xl"
-        type="single"
-        collapsible
+    <div
+      class="flex flex-col h-screen gap-2 py-2"
+      :class="{
+        'pb-20': processList && processList.length > 0,
+        'pb-16': !(processList && processList.length > 0),
+      }"
+    >
+      <ScrollArea
+        class="flex-none w-full max-w-md mx-auto border rounded md:max-w-xl bg-background"
+        v-if="processList && processList.length > 0"
       >
-        <ScrollArea
-          class="w-full h-full pl-2 pr-4 border rounded-md bg-background"
-        >
+        <Accordion class="w-full h-full px-2" type="single" collapsible>
+          <!-- running models -->
+          <AccordionItem value="processes">
+            <AccordionTrigger>Processes</AccordionTrigger>
+            <AccordionContent>
+              <div v-for="(model, index) in processList" :key="index">
+                <Card class="mb-2">
+                  <CardHeader>
+                    <CardTitle class="text-lg font-bold">
+                      {{ model.model }}
+                    </CardTitle>
+                    <CardDescription>
+                      <p>Size VRAM: {{ formatSize(model.size_vram) }}</p>
+                      <p>Size: {{ formatSize(model.size) }}</p>
+                      <p>Expires at: {{ timeLeft(model.expires_at) }}</p>
+                    </CardDescription>
+                  </CardHeader>
+                  <!-- <CardContent> Card Content </CardContent> -->
+                  <!-- <CardFooter> Card Footer </CardFooter> -->
+                </Card>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </ScrollArea>
+
+      <ScrollArea
+        class="flex-auto w-full max-w-md mx-auto border rounded md:max-w-xl bg-background"
+      >
+        <Accordion class="w-full h-full pl-2 pr-4" type="multiple" collapsible>
+          <!-- models list -->
           <AccordionItem
             v-for="(model, index) in sortedModelList"
             :key="index"
@@ -327,7 +408,12 @@ const formatDateTime = (datetime) => {
                       <TooltipTrigger>
                         <Button
                           variant="ghost"
-                          @click="() => console.log('rename', model.name)"
+                          @click="
+                            () => {
+                              console.log('rename', model.name);
+                              toast('Rename button has been pressed!', {});
+                            }
+                          "
                         >
                           RN
                         </Button>
@@ -343,7 +429,12 @@ const formatDateTime = (datetime) => {
                       <TooltipTrigger>
                         <Button
                           variant="ghost"
-                          @click="() => console.log('copy', model.name)"
+                          @click="
+                            () => {
+                              console.log('copy', model.name);
+                              toast('Copy button has been pressed!', {});
+                            }
+                          "
                         >
                           CP
                         </Button>
@@ -359,7 +450,12 @@ const formatDateTime = (datetime) => {
                       <TooltipTrigger>
                         <Button
                           variant="ghost"
-                          @click="() => console.log('remove', model.name)"
+                          @click="
+                            () => {
+                              console.log('delete', model.name);
+                              toast('Delete button has been pressed!', {});
+                            }
+                          "
                         >
                           RM
                         </Button>
@@ -413,11 +509,15 @@ const formatDateTime = (datetime) => {
               </Tabs>
             </AccordionContent>
           </AccordionItem>
-        </ScrollArea>
-      </Accordion>
-      <div class="flex justify-center pt-1.5 text-sm">
-        made with love by endoLlama
-      </div>
+        </Accordion>
+      </ScrollArea>
+  
+        <div class="fixed bottom-0 flex justify-center w-full pb-2">
+          <p class="text-xs ">
+
+            made with love by endoLlama
+          </p>
+        </div>
     </div>
   </div>
 </template>
