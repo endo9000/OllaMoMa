@@ -14,22 +14,22 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
+  // CardContent,
   CardDescription,
-  CardFooter,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuRadioGroup,
+//   DropdownMenuRadioItem,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -49,12 +49,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const mode = useColorMode();
-
 import { Ollama } from "ollama";
-const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
 
-const modelList = ref([]);
+const base_url = "http://127.0.0.1:11434";
+
+const mode = useColorMode();
+const ollama = new Ollama({ host: base_url });
+
+const modelList = ref<any[]>([]);
+
 async function getModelList() {
   const response = await ollama.list();
   // console.log(response);
@@ -62,7 +65,7 @@ async function getModelList() {
 }
 getModelList();
 
-const processList = ref([]);
+const processList = ref<any[]>([]);
 async function getProcessList() {
   const response = await ollama.ps();
   // console.log(response);
@@ -73,18 +76,18 @@ getProcessList();
 let intervalId = null;
 intervalId = setInterval(getProcessList, 1000);
 
-const searchTerm = ref("");
-const filteredModelList = computed(() => {
-  if (!searchTerm.value) return modelList.value;
+const filterModel = ref("");
+computed(() => {
+  if (!filterModel.value) return modelList.value;
   return modelList.value.filter((model) =>
-    model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+    model.name.toLowerCase().includes(filterModel.value.toLowerCase())
   );
 });
 
 const sortBy = ref("name");
 const sortOrder = ref("asc");
 const sortedModelList = computed(() => {
-  if (!searchTerm.value) {
+  if (!filterModel.value) {
     if (sortBy.value === "name") {
       return modelList.value.slice().sort((a, b) => {
         if (sortOrder.value === "asc") {
@@ -104,9 +107,15 @@ const sortedModelList = computed(() => {
     } else if (sortBy.value === "modified_at") {
       return modelList.value.slice().sort((a, b) => {
         if (sortOrder.value === "asc") {
-          return new Date(a.modified_at) - new Date(b.modified_at);
+          return (
+            new Date(a.modified_at).getTime() -
+            new Date(b.modified_at).getTime()
+          );
         } else {
-          return new Date(b.modified_at) - new Date(a.modified_at);
+          return (
+            new Date(b.modified_at).getTime() -
+            new Date(a.modified_at).getTime()
+          );
         }
       });
     }
@@ -114,7 +123,7 @@ const sortedModelList = computed(() => {
   }
   return modelList.value
     .filter((model) =>
-      model.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+      model.name.toLowerCase().includes(filterModel.value.toLowerCase())
     )
     .slice()
     .sort((a, b) => {
@@ -126,14 +135,19 @@ const sortedModelList = computed(() => {
     });
 });
 
+//@ts-ignore
 async function deleteModel(request: { modelName: string }) {
+  const deleteRequest: any = { modelName: request.modelName };
   console.log(request.modelName);
-  await ollama.delete(request.modelName);
+  await ollama.delete(deleteRequest);
   getModelList();
 }
 
-async function copyModel(modelName: string) {
-  await ollama.copy(modelName);
+//@ts-ignore
+async function copyModel(request: { modelName: string }) {
+  const copyRequest: any = { modelName: request.modelName };
+  console.log(request.modelName);
+  await ollama.copy(copyRequest);
   getModelList();
 }
 
@@ -145,21 +159,17 @@ const formatSize = (bytes: number) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
 
-const capitalize = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+// const capitalize = (str: string) => {
+//   return str.charAt(0).toUpperCase() + str.slice(1);
+// };
 
-const formatDateTime = (datetime) => {
+const formatDateTime = (datetime: string) => {
   const date = new Date(datetime);
   const now = new Date();
   const diffTime = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  const dateString = date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const dateString = date.toISOString().slice(0, 10); // YYYY-MM-DD
 
   if (diffDays === 0) {
     return `${dateString} (today)`;
@@ -170,10 +180,10 @@ const formatDateTime = (datetime) => {
   }
 };
 
-const timeLeft = (expiresAt) => {
+const timeLeft = (expiresAt: string) => {
   const expiresAtDate = new Date(expiresAt);
   const now = new Date();
-  const timeLeft = expiresAtDate - now;
+  const timeLeft: number = expiresAtDate.getTime() - now.getTime();
 
   const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
@@ -206,16 +216,15 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="h-screen overflow-y-hidden bg-background">
+  <div class="h-screen px-2 overflow-y-hidden bg-background">
     <Toaster richColors position="top-center" />
-
     <div
-      class="flex justify-center flex-auto max-w-md gap-1 pt-2 mx-auto md:max-w-xl"
+      class="flex justify-center flex-auto max-w-lg gap-1 pt-2 mx-auto md:max-w-xl"
     >
       <div class="w-full">
         <Input
           class="focus-visible:outline-none"
-          v-model="searchTerm"
+          v-model="filterModel"
           :placeholder="`Search ${modelList.length} models...`"
         />
       </div>
@@ -225,7 +234,7 @@ onBeforeUnmount(() => {
           <TooltipTrigger>
             <Popover>
               <PopoverTrigger>
-                <Button variant="">
+                <Button variant="default">
                   <Icon
                     icon="radix-icons:gear"
                     class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
@@ -323,26 +332,24 @@ onBeforeUnmount(() => {
       </TooltipProvider>
     </div>
 
-    <div
-      class="flex flex-col h-screen gap-2 py-2"
-      :class="{
-        'pb-20': processList && processList.length > 0,
-        'pb-16': !(processList && processList.length > 0),
-      }"
-    >
+    <div class="flex flex-col h-screen gap-2 py-2 pb-20">
       <ScrollArea
-        class="flex-none w-full max-w-md mx-auto border rounded md:max-w-xl bg-background"
+        class="flex-none w-full max-w-lg mx-auto border rounded md:max-w-xl bg-background"
         v-if="processList && processList.length > 0"
       >
         <Accordion class="w-full h-full px-2" type="single" collapsible>
-          <!-- running models -->
           <AccordionItem value="processes">
-            <AccordionTrigger>Processes</AccordionTrigger>
-            <AccordionContent>
+            <AccordionTrigger
+              >{{ processList.length }}
+              {{ processList.length === 1 ? "model" : "models" }}
+              loaded</AccordionTrigger
+            >
+
+            <AccordionContent class="mb-1">
               <div v-for="(model, index) in processList" :key="index">
-                <Card class="mb-2">
+                <Card>
                   <CardHeader>
-                    <CardTitle class="text-lg font-bold">
+                    <CardTitle class="text-lg">
                       {{ model.model }}
                     </CardTitle>
                     <CardDescription>
@@ -361,7 +368,7 @@ onBeforeUnmount(() => {
       </ScrollArea>
 
       <ScrollArea
-        class="flex-auto w-full max-w-md mx-auto border rounded md:max-w-xl bg-background"
+        class="flex-auto w-full max-w-lg mx-auto border rounded md:max-w-xl bg-background"
       >
         <Accordion class="w-full h-full pl-2 pr-4" type="multiple" collapsible>
           <!-- models list -->
@@ -373,7 +380,7 @@ onBeforeUnmount(() => {
             <AccordionTrigger> {{ model.name }} </AccordionTrigger>
 
             <AccordionContent>
-              <Tabs default-value="modelinfo_tab" class="max-w-md md:max-w-xl">
+              <Tabs default-value="modelinfo_tab" class="w-full">
                 <TabsList class="flex">
                   <TooltipProvider>
                     <Tooltip>
@@ -485,7 +492,7 @@ onBeforeUnmount(() => {
                       :key="key"
                     >
                       {{
-                        key
+                        `${key}`
                           .replace("_", " ")
                           .split(" ")
                           .map(
@@ -511,13 +518,18 @@ onBeforeUnmount(() => {
           </AccordionItem>
         </Accordion>
       </ScrollArea>
-  
-        <div class="fixed bottom-0 flex justify-center w-full pb-2">
-          <p class="text-xs ">
 
-            made with love by endoLlama
-          </p>
-        </div>
+      <div class="fixed flex justify-center w-full bottom-2">
+        <p class="text-xs">
+          made with love by
+          <a
+            class="underline"
+            href="https://github.com/endo9000"
+            target="_blank"
+            >endoLlama</a
+          >
+        </p>
+      </div>
     </div>
   </div>
 </template>
