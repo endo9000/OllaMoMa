@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue';
 
-import { useColorMode } from '@vueuse/core';
 import { Icon } from '@iconify/vue';
+import { Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import { useColorMode } from '@vueuse/core';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -45,13 +46,13 @@ import { Toaster } from '@/components/ui/sonner';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { Ollama } from 'ollama';
-
-const base_url = 'http://127.0.0.1:11434';
-
-const newName = '';
+import { Ollama } from 'ollama/browser';
 
 const mode = useColorMode();
+
+const newName = ref('');
+
+const base_url = 'http://127.0.0.1:11434';
 const ollama = new Ollama({ host: base_url });
 
 const modelList = ref<any[]>([]);
@@ -69,6 +70,113 @@ async function getProcessList() {
 	processList.value = [...response.models];
 }
 getProcessList();
+
+const modelfileContent = ref('');
+const originalModelfileContent = ref('');
+async function showModelFile(request: { model: string }) {
+	const showRequest: any = { model: request.model };
+	const response = await ollama.show(showRequest);
+	const lines = response.modelfile.split('\n');
+	const filteredLines = [];
+
+	for (const line of lines) {
+		if (line.trim() === '' || line.trim().startsWith('#')) {
+			continue;
+		}
+		filteredLines.push(line);
+	}
+	modelfileContent.value = filteredLines.join('\n');
+	originalModelfileContent.value = modelfileContent.value; // store original content
+}
+
+const isLoading = ref(false);
+async function saveModelFile(request: { model: string; modelfile: string }) {
+	const promise = () =>
+		new Promise(async (resolve, reject) => {
+			try {
+				isLoading.value = true;
+				const createNewRequest: any = {
+					model: request.model,
+					modelfile: request.modelfile,
+				};
+				await ollama.create(createNewRequest);
+				resolve({ name: request.model });
+			} catch (error: any) {
+				reject(error);
+			}
+		});
+
+	toast.promise(promise, {
+		loading: 'Saving modelfile...',
+		success: (data) => {
+			isLoading.value = false;
+			return `Modelfile ${data.name} saved successfully`;
+		},
+		error: (error: any) => {
+			console.error(`Error creating new model: ${error}`);
+			console.error(error.stack);
+			isLoading.value = false;
+			return `Failed to create ${request.model} with modelfile: ${error.message}`;
+		},
+	});
+}
+
+function undoChanges() {
+	modelfileContent.value = originalModelfileContent.value; // revert to original content
+}
+
+async function renameModel(request: { source: string; destination: string }) {
+	try {
+		const copyRequest: any = { source: request.source, destination: request.destination.trim() };
+		const deleteRequest: any = { model: request.source };
+		// console.log(copyRequest);
+		await ollama.copy(copyRequest);
+		await ollama.delete(deleteRequest);
+		getModelList();
+		toast.success(`${request.source} renamed successfully`, {
+			description: `Renamed model to ${copyRequest.destination}`,
+		});
+	} catch (error: any) {
+		console.error(`Error renaming model: ${error}`);
+		toast.error(`Failed to rename ${request.source}`, {
+			description: `Error: ${error.message}`,
+		});
+	}
+}
+
+async function copyModel(request: { source: string; destination: string }) {
+	try {
+		const copyRequest: any = { source: request.source, destination: request.destination.trim() };
+		// console.log(copyRequest);
+		await ollama.copy(copyRequest);
+		getModelList();
+		toast.success(`Model copied successfully`, {
+			description: `Copied model to ${copyRequest.destination}`,
+		});
+	} catch (error: any) {
+		console.error(`Error copying model: ${error}`);
+		toast.error(`Failed to copy ${request.source}`, {
+			description: `Error: ${error.message}`,
+		});
+	}
+}
+
+async function deleteModel(request: { model: string }) {
+	try {
+		const deleteRequest: any = { model: request.model };
+		// console.log(deleteRequest);
+		await ollama.delete(deleteRequest);
+		getModelList();
+		toast.success(`Model deleted successfully`, {
+			description: `Deleted model ${request.model}`,
+		});
+	} catch (error: any) {
+		console.error(`Error deleting model: ${error}`);
+		toast.error(`Failed to delete ${request.model}`, {
+			description: `Error: ${error.message}`,
+		});
+	}
+}
 
 let intervalId = null;
 intervalId = setInterval(getProcessList, 1000);
@@ -120,22 +228,6 @@ const sortedModelList = computed(() => {
 			}
 		});
 });
-
-//@ts-ignore
-async function deleteModel(request: { modelName: string }) {
-	const deleteRequest: any = { modelName: request.modelName };
-	console.log(request.modelName);
-	await ollama.delete(deleteRequest);
-	getModelList();
-}
-
-// @ts-ignore
-async function copyModel(request: { modelName: string }) {
-	const copyRequest: any = { modelName: request.modelName };
-	console.log(request.modelName);
-	await ollama.copy(copyRequest);
-	getModelList();
-}
 
 const formatSize = (bytes: number) => {
 	if (bytes === 0) return '0 Bytes';
@@ -193,12 +285,10 @@ const timeLeft = (expiresAt: string) => {
 
 <template>
 	<div class="h-screen px-2 overflow-y-hidden bg-background">
-		<Toaster
-			richColors
-			position="top-center" />
-		<div class="flex justify-center flex-auto max-w-lg gap-1 pt-2 mx-auto md:max-w-xl">
+		<div class="flex max-w-lg gap-1 pt-2 mx-auto md:max-w-xl">
 			<div class="w-full">
 				<Input
+					name="filterModel"
 					class="focus-visible:outline-none"
 					v-model="filterModel"
 					:placeholder="`Search ${modelList.length} models...`" />
@@ -279,6 +369,7 @@ const timeLeft = (expiresAt: string) => {
 					<Separator label="BASE URL" />
 					<div class="flex justify-between gap-1">
 						<Input
+							name="base-url"
 							class="focus-visible:outline-none"
 							placeholder="Enter Base URL" />
 						<Button>
@@ -350,14 +441,14 @@ const timeLeft = (expiresAt: string) => {
 			<ScrollArea class="flex-auto w-full max-w-lg mx-auto border rounded md:max-w-xl bg-background">
 				<Accordion
 					class="w-full h-full pl-2 pr-4"
-					type="multiple"
+					type="single"
 					collapsible>
 					<!-- models list -->
 					<AccordionItem
 						v-for="(model, index) in sortedModelList"
 						:key="index"
 						:value="`item-${index}`">
-						<AccordionTrigger> {{ model.name }} </AccordionTrigger>
+						<AccordionTrigger @click="showModelFile({ model: model.name })"> {{ model.name }} </AccordionTrigger>
 
 						<AccordionContent>
 							<Tabs
@@ -378,7 +469,11 @@ const timeLeft = (expiresAt: string) => {
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger>
-												<TabsTrigger value="modelfile_tab"> Modelfile </TabsTrigger>
+												<TabsTrigger
+													name="modelfile_tab"
+													value="modelfile_tab">
+													Modelfile
+												</TabsTrigger>
 											</TooltipTrigger>
 											<TooltipContent>
 												<p>Modelfile</p>
@@ -407,6 +502,7 @@ const timeLeft = (expiresAt: string) => {
 												<DialogDescription> Enter a new name for {{ model.name }} </DialogDescription>
 											</DialogHeader>
 											<Input
+												name="rename-model"
 												class="focus-visible:outline-none"
 												v-model="newName"
 												:placeholder="`Enter model name...`" />
@@ -416,8 +512,7 @@ const timeLeft = (expiresAt: string) => {
 														variant="default"
 														@click="
 															() => {
-																console.log('rename', model.name, 'to', newName);
-																toast(`Model renamed to ${newName} successfully!`, {});
+																renameModel({ source: model.name, destination: newName });
 															}
 														">
 														Rename
@@ -446,6 +541,7 @@ const timeLeft = (expiresAt: string) => {
 												<DialogDescription> Enter a new name for {{ model.name }} </DialogDescription>
 											</DialogHeader>
 											<Input
+												name="copy-model"
 												class="focus-visible:outline-none"
 												v-model="newName"
 												:placeholder="`Enter model name...`" />
@@ -455,8 +551,7 @@ const timeLeft = (expiresAt: string) => {
 														variant="default"
 														@click="
 															() => {
-																console.log('copy', model.name, 'to', newName);
-																toast(`Model copied to ${newName} successfully!`, {});
+																copyModel({ source: model.name, destination: newName });
 															}
 														">
 														Copy
@@ -482,20 +577,15 @@ const timeLeft = (expiresAt: string) => {
 										<DialogContent>
 											<DialogHeader>
 												<DialogTitle>Remove Model</DialogTitle>
-												<DialogDescription>
-													Are you sure you want to remove
-													{{ model.name }}?
-												</DialogDescription>
+												<DialogDescription> Are you sure you want to remove {{ model.name }}? </DialogDescription>
 											</DialogHeader>
-
 											<DialogFooter>
 												<DialogClose as-child>
 													<Button
 														variant="destructive"
 														@click="
 															() => {
-																console.log('delete', model.name);
-																toast('Model deleted successfully!', {});
+																deleteModel({ model: model.name });
 															}
 														">
 														Remove
@@ -526,10 +616,35 @@ const timeLeft = (expiresAt: string) => {
 									</ul>
 								</TabsContent>
 
-								<TabsContent value="modelfile_tab">
+								<TabsContent
+									class="flex flex-col gap-2"
+									value="modelfile_tab">
 									<Textarea
-										class="focus-visible:outline-none min-h-48"
-										placeholder="Modelfile loads here..." />
+										name="model-file-area"
+										class="focus-visible:outline-none min-h-52"
+										placeholder="Modelfile loads here..."
+										v-model="modelfileContent" />
+									<div class="flex justify-end gap-1">
+										<Button
+											@click="undoChanges"
+											variant="secondary"
+											>Undo</Button
+										>
+										<Button
+											class="flex justify-center"
+											:disabled="isLoading"
+											variant="destructive"
+											@click="
+												() => {
+													saveModelFile({ model: model.name, modelfile: modelfileContent });
+												}
+											">
+											<Loader2
+												v-if="isLoading"
+												class="w-4 h-4 animate-spin" />
+											<span v-if="!isLoading">Save</span>
+										</Button>
+									</div>
 								</TabsContent>
 							</Tabs>
 						</AccordionContent>
@@ -539,150 +654,20 @@ const timeLeft = (expiresAt: string) => {
 
 			<div class="fixed flex justify-center w-full bottom-2">
 				<p class="text-xs">
-					made with love by
+					made with ❤️ by
 					<a
 						class="underline"
 						href="https://github.com/endo9000"
-						target="_blank"
-						>endoLlama</a
-					>
+						target="_blank">
+						endoLlama
+					</a>
 				</p>
 			</div>
 		</div>
 	</div>
+	<Toaster
+		position="top-center"
+		richColors />
 </template>
 
 <style scoped></style>
-
-<!-- <TooltipProvider>
-  <Tooltip>
-    <TooltipTrigger>
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="">
-            <Icon
-              icon="radix-icons:sun"
-              class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-            />
-            <Icon
-              icon="radix-icons:moon"
-              class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-            />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem @click="mode = 'light'"
-            >Light</DropdownMenuItem
-          >
-          <DropdownMenuItem @click="mode = 'dark'">Dark</DropdownMenuItem>
-          <DropdownMenuItem @click="mode = 'auto'"
-            >System</DropdownMenuItem
-          >
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </TooltipTrigger>
-    <TooltipContent>
-      <p>Themes</p>
-    </TooltipContent>
-  </Tooltip>
-</TooltipProvider> -->
-
-<!-- <div class="py-2">
-    <Button class="flex py-2 mx-auto" variant="">Button</Button>
-  </div> -->
-
-<!-- <div class="flex justify-center">
-    <DropdownMenu>
-      <DropdownMenuTrigger as-child>
-        <Button class="my-2" variant="">Dropdown</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent class="w-56">
-        <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup v-model="position">
-          <DropdownMenuRadioItem value="top"> Top </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="bottom"> Bottom </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="right"> Right </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div> -->
-
-<!-- <div class="flex justify-center py-2">
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger>tooltip (hover)</TooltipTrigger>
-      <TooltipContent>
-        <p</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-</div> -->
-
-<!-- <div class="max-w-md py-2 mx-auto">
-    <Input placeholder="Type your message here." />
-    <div class="max-w-md py-5 mx-auto">
-      <Separator label="Or" />
-    </div>
-    <Textarea placeholder="Type your message here." />
-  </div> -->
-
-<!-- <div class="max-w-md py-5 mx-auto">
-    <Separator label="And" />
-  </div> -->
-
-<!-- <div class="flex justify-center py-2">
-    <Tabs default-value="tab_1" class="max-w-md">
-      <TabsList class="flex">
-        <TabsTrigger value="tab_1"> tab 1 </TabsTrigger>
-        <TabsTrigger value="tab_2"> tab 2 </TabsTrigger>
-
-        <div class="flex-grow"></div>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant="ghost">btn 1</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>btn 1</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant="ghost">btn 2</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>btn 2</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant="ghost">btn 3</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>btn 3</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </TabsList>
-
-      <TabsContent value="tab_1">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem repellat
-        nihil ullam magni dignissimos error doloribus, rem laudantium
-        perferendis! Odit dolorem, consequatur necessitatibus iure tempore
-        voluptatibus quasi ipsam dolores culpa!
-      </TabsContent>
-      <TabsContent value="tab_2">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aut, fuga?
-        Quisquam repellendus ut quasi ipsa, sed impedit nulla enim modi et velit
-        facere accusamus vel natus iure quis ipsum laudantium!
-      </TabsContent>
-    </Tabs>
-  </div> -->
