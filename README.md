@@ -23,8 +23,11 @@ This project provides a simple and intuitive way to explore, manage, and interac
     * Install dependencies: `npm install`
 3. **Local Server:**
     * Start the development server: `npm run dev`
-    * Open your web browser and visit `http://localhost:3000`
+    * Open your web browser and visit `http://localhost:4000`
 
+**Configuration:**
+
+To use a different port, just update the "dev" script in the package.json file. For example, change it to "dev": "vite --port 5000" to use port 5000 instead of the default port 4000.
 
 **Contributing:**
 
