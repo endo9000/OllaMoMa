@@ -231,7 +231,7 @@ const sortedModelList = computed(() => {
 
 const formatSize = (bytes: number) => {
 	if (bytes === 0) return '0 Bytes';
-	const k = 1024;
+	const k = 1000;
 	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 	const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), 3);
 	return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
@@ -597,12 +597,12 @@ const timeLeft = (expiresAt: string) => {
 								</TabsList>
 
 								<TabsContent value="modelinfo_tab">
-									<ul class="flex flex-wrap gap-2">
-										<li class="px-2 py-1 border rounded w-fit">Model Name: {{ model.name }}</li>
-										<li class="px-2 py-1 border rounded w-fit">Model Size: {{ formatSize(model.size) }}</li>
-										<li class="px-2 py-1 border rounded w-fit">Modified At: {{ formatDateTime(model.modified_at) }}</li>
+									<ul class="grid grid-cols-3 gap-2">
+										<li class="px-2 py-1 border rounded w-full">Model Name: <br> {{ model.name }}</li>
+										<li class="px-2 py-1 border rounded w-full">Model Size: <br> {{ formatSize(model.size) }}</li>
+										<li class="px-2 py-1 border rounded w-full">Modified At: <br> {{ formatDateTime(model.modified_at) }}</li>
 										<li
-											class="px-2 py-1 border rounded w-fit"
+											class="px-2 py-1 border rounded w-full"
 											v-for="(value, key) in model.details"
 											:key="key">
 											{{
@@ -611,7 +611,7 @@ const timeLeft = (expiresAt: string) => {
 													.split(' ')
 													.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 													.join(' ')
-											}}: {{ value }}
+											}}: <br> {{ value }}
 										</li>
 									</ul>
 								</TabsContent>
