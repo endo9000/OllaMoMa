@@ -18,8 +18,8 @@ This project provides a simple and intuitive way to explore, manage, and interac
 1. **Prerequisites:**
     * Node.js and npm (or yarn) installed on your system.
 2. **Installation:**
-    * Clone the repository: `git clone https://github.com/your-username/model-explorer.git`
-    * Navigate into the project directory: `cd model-explorer`
+    * Clone the repository: `git clone https://github.com/endo9000/OllaMoMa`
+    * Navigate into the project directory: `cd ollamoma-ui`
     * Install dependencies: `npm install`
 3. **Local Server:**
     * Start the development server: `npm run dev`
