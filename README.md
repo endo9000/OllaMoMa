@@ -1,8 +1,8 @@
 ##  OllaMoMa (Ollama Model Manager)
 
-**A web application for interacting with your local large laguage models!**
+**A web application for interacting with your Ollama llms!**
 
-This project provides a simple and intuitive way to explore, manage, and interact with your locally stored LLMs. 
+This project provides a simple and intuitive way to explore, manage, and interact with your locally stored Ollama models. 
 
 **Features:**
 
@@ -40,3 +40,5 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 **Disclaimer:**
 
 This application is intended for educational purposes only. Use it responsibly and be aware of the potential risks associated with modifying your model files.
+
+If you got any questions about this web application you can find me in Ollama's discord server. Feel free to join us. [Ollama Discord](https://discord.gg/ollama)
