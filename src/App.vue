@@ -372,7 +372,7 @@ const timeLeft = (expiresAt: string) => {
 							name="base-url"
 							class="focus-visible:outline-none"
 							placeholder="Enter Base URL"
-              v-model="baseUrl" />
+							v-model="baseUrl" />
 						<Button>
 							<Icon
 								icon="radix-icons:check"
@@ -488,7 +488,7 @@ const timeLeft = (expiresAt: string) => {
 											<TooltipProvider>
 												<Tooltip>
 													<TooltipTrigger>
-														<Button variant="ghost"> RN </Button>
+														<Button variant="ghost"> MV </Button>
 													</TooltipTrigger>
 													<TooltipContent>
 														<p>Rename</p>
