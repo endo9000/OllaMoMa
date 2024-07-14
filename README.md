@@ -1,4 +1,4 @@
-##  endoLlama's Model Explorer
+##  OllaMoMa (Ollama Model Manager)
 
 **A web application for interacting with your local machine learning models!**
 
