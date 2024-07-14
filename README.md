@@ -1,8 +1,8 @@
 ##  OllaMoMa (Ollama Model Manager)
 
-**A web application for interacting with your local machine learning models!**
+**A web application for interacting with your local large laguage models!**
 
-This project provides a simple and intuitive way to explore, manage, and interact with your machine learning models stored locally. 
+This project provides a simple and intuitive way to explore, manage, and interact with your locally stored LLMs. 
 
 **Features:**
 
