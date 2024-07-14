@@ -19,7 +19,7 @@ This project provides a simple and intuitive way to explore, manage, and interac
     * Node.js and npm (or yarn) installed on your system.
 2. **Installation:**
     * Clone the repository: `git clone https://github.com/endo9000/OllaMoMa`
-    * Navigate into the project directory: `cd ollamoma-ui`
+    * Navigate into the project directory: `cd olllamoma`
     * Install dependencies: `npm install`
 3. **Local Server:**
     * Start the development server: `npm run dev`
