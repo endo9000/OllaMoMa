@@ -598,11 +598,26 @@ const timeLeft = (expiresAt: string) => {
 
 								<TabsContent value="modelinfo_tab">
 									<ul class="grid grid-cols-3 gap-2">
-										<li class="px-2 py-1 border rounded w-full">Model Name: <br> {{ model.name }}</li>
-										<li class="px-2 py-1 border rounded w-full">Model Size: <br> {{ formatSize(model.size) }}</li>
-										<li class="px-2 py-1 border rounded w-full">Modified At: <br> {{ formatDateTime(model.modified_at) }}</li>
+										<li class="px-2 py-1 border rounded w-full text-muted-foreground">
+											Model Name: <br />
+											<div class="font-semibold text-foreground">
+												{{ model.name }}
+											</div>
+										</li>
+										<li class="px-2 py-1 border rounded w-full text-muted-foreground">
+											Model Size: <br />
+											<div class="font-semibold text-foreground">
+											{{ formatSize(model.size) }}
+											</div>
+										</li>
+										<li class="px-2 py-1 border rounded w-full text-muted-foreground">
+											Modified At: <br />
+											<div class="font-semibold text-foreground line-clamp-1">
+											{{ formatDateTime(model.modified_at) }}
+											</div>
+										</li>
 										<li
-											class="px-2 py-1 border rounded w-full"
+											class="px-2 py-1 border rounded w-full text-muted-foreground"
 											v-for="(value, key) in model.details"
 											:key="key">
 											{{
@@ -611,7 +626,10 @@ const timeLeft = (expiresAt: string) => {
 													.split(' ')
 													.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 													.join(' ')
-											}}: <br> {{ value }}
+											}}: <br />
+											<div class="font-semibold text-foreground">
+											{{ value }}
+											</div>
 										</li>
 									</ul>
 								</TabsContent>
