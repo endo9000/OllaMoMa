@@ -52,8 +52,8 @@ const mode = useColorMode();
 
 const newName = ref('');
 
-const base_url = 'http://127.0.0.1:11434';
-const ollama = new Ollama({ host: base_url });
+let baseUrl = 'http://127.0.0.1:11434';
+const ollama = new Ollama({ host: baseUrl });
 
 const modelList = ref<any[]>([]);
 async function getModelList() {
@@ -73,7 +73,7 @@ getProcessList();
 
 const modelfileContent = ref('');
 const originalModelfileContent = ref('');
-async function showModelFile(request: { model: string }) {
+async function showModelFileContent(request: { model: string }) {
 	const showRequest: any = { model: request.model };
 	const response = await ollama.show(showRequest);
 	const lines = response.modelfile.split('\n');
@@ -86,11 +86,11 @@ async function showModelFile(request: { model: string }) {
 		filteredLines.push(line);
 	}
 	modelfileContent.value = filteredLines.join('\n');
-	originalModelfileContent.value = modelfileContent.value; // store original content
+	originalModelfileContent.value = modelfileContent.value;
 }
 
 const isLoading = ref(false);
-async function saveModelFile(request: { model: string; modelfile: string }) {
+async function saveModelFileContent(request: { model: string; modelfile: string }) {
 	const promise = () =>
 		new Promise(async (resolve, reject) => {
 			try {
@@ -108,9 +108,9 @@ async function saveModelFile(request: { model: string; modelfile: string }) {
 
 	toast.promise(promise, {
 		loading: 'Saving modelfile...',
-		success: (data) => {
+		success: (data: any) => {
 			isLoading.value = false;
-			return `Modelfile ${data.name} saved successfully`;
+			return `Modelfile ${data.model} saved successfully`;
 		},
 		error: (error: any) => {
 			console.error(`Error creating new model: ${error}`);
@@ -366,12 +366,13 @@ const timeLeft = (expiresAt: string) => {
 						</ToggleGroupItem>
 					</ToggleGroup>
 
-					<Separator label="BASE URL" />
+					<!-- <Separator label="BASE URL" />
 					<div class="flex justify-between gap-1">
 						<Input
 							name="base-url"
 							class="focus-visible:outline-none"
-							placeholder="Enter Base URL" />
+							placeholder="Enter Base URL"
+              v-model="baseUrl" />
 						<Button>
 							<Icon
 								icon="radix-icons:check"
@@ -380,9 +381,9 @@ const timeLeft = (expiresAt: string) => {
 								icon="radix-icons:check"
 								class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
 						</Button>
-					</div>
+					</div> -->
 
-					<Separator label="DEBUG" />
+					<!-- <Separator label="DEBUG" />
 					<div class="flex justify-center">
 						<Button
 							variant="destructive"
@@ -394,7 +395,7 @@ const timeLeft = (expiresAt: string) => {
 							">
 							TRIGGER TOAST
 						</Button>
-					</div>
+					</div> -->
 				</PopoverContent>
 			</Popover>
 		</div>
@@ -443,12 +444,11 @@ const timeLeft = (expiresAt: string) => {
 					class="w-full h-full pl-2 pr-4"
 					type="single"
 					collapsible>
-					<!-- models list -->
 					<AccordionItem
 						v-for="(model, index) in sortedModelList"
 						:key="index"
 						:value="`item-${index}`">
-						<AccordionTrigger @click="showModelFile({ model: model.name })"> {{ model.name }} </AccordionTrigger>
+						<AccordionTrigger @click="showModelFileContent({ model: model.name })"> {{ model.name }} </AccordionTrigger>
 
 						<AccordionContent>
 							<Tabs
@@ -636,7 +636,7 @@ const timeLeft = (expiresAt: string) => {
 											variant="destructive"
 											@click="
 												() => {
-													saveModelFile({ model: model.name, modelfile: modelfileContent });
+													saveModelFileContent({ model: model.name, modelfile: modelfileContent });
 												}
 											">
 											<Loader2
@@ -669,5 +669,3 @@ const timeLeft = (expiresAt: string) => {
 		position="top-center"
 		richColors />
 </template>
-
-<style scoped></style>
