@@ -24,6 +24,12 @@ This project provides a simple and intuitive way to explore, manage, and interac
 3. **Local Server:**
     * Start the development server: `npm run dev`
     * Open your web browser and visit `http://localhost:4000`
+4. **Alternative Method (No Build Required):**
+    * Download the `ollamoma.zip` file from the repository
+    * Unzip the file to a directory of your choice
+    * Use a web server of your choice (e.g. IIS, Apache, Python's `http.server`) to serve the unzipped files
+    * Open your web browser and visit the URL of your chosen web server
+
 
 **Configuration:**
 
