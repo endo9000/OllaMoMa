@@ -50,15 +50,13 @@ import { Ollama } from 'ollama/browser';
 
 const mode = useColorMode();
 
-const newName = ref('');
 const ollamomaDebug: string = localStorage.getItem('ollamomaDebug') || 'false';
 
-const newBaseUrl = ref('');
 const baseUrl: string = localStorage.getItem('baseUrl') || 'http://127.0.0.1:11434';
-newBaseUrl.value = baseUrl;
+const newBaseUrl = ref('');
 
+newBaseUrl.value = baseUrl;
 async function setBaseUrl() {
-	console.log(newBaseUrl.value)
 	localStorage.setItem('baseUrl', newBaseUrl.value);
 	location.reload();
 }
@@ -135,40 +133,67 @@ function undoChanges() {
 	modelfileContent.value = originalModelfileContent.value; // revert to original content
 }
 
+const newName = ref('');
 async function renameModel(request: { source: string; destination: string }) {
-	try {
-		const copyRequest: any = { source: request.source, destination: request.destination.trim() };
-		const deleteRequest: any = { model: request.source };
-		// console.log(copyRequest);
-		await ollama.copy(copyRequest);
-		await ollama.delete(deleteRequest);
-		getModelList();
-		toast.success(`${request.source} renamed successfully`, {
-			description: `Renamed model to ${copyRequest.destination}`,
-		});
-	} catch (error: any) {
-		console.error(`Error renaming model: ${error}`);
-		toast.error(`Failed to rename ${request.source}`, {
-			description: `Error: ${error.message}`,
-		});
-	}
+  const promise = () =>
+    new Promise(async (resolve, reject) => {
+      try {
+        isLoading.value = true;
+        const copyRequest: any = { source: request.source, destination: request.destination.trim() };
+        const deleteRequest: any = { model: request.source };
+        await ollama.copy(copyRequest);
+        await ollama.delete(deleteRequest);
+        resolve({ name: request.destination });
+      } catch (error: any) {
+        reject(error);
+      }
+    });
+
+  toast.promise(promise, {
+    loading: 'Renaming model...',
+    success: (data: any) => {
+      isLoading.value = false;
+			getModelList();
+			newName.value = '';
+      return `Model renamed successfully to ${data.name}`;
+    },
+    error: (error: any) => {
+      console.error(`Error renaming model: ${error}`);
+      console.error(error.stack);
+      isLoading.value = false;
+      return `Failed to rename ${request.source} to ${request.destination}: ${error.message}`;
+    },
+  });
 }
 
 async function copyModel(request: { source: string; destination: string }) {
-	try {
-		const copyRequest: any = { source: request.source, destination: request.destination.trim() };
-		// console.log(copyRequest);
-		await ollama.copy(copyRequest);
-		getModelList();
-		toast.success(`Model copied successfully`, {
-			description: `Copied model to ${copyRequest.destination}`,
-		});
-	} catch (error: any) {
-		console.error(`Error copying model: ${error}`);
-		toast.error(`Failed to copy ${request.source}`, {
-			description: `Error: ${error.message}`,
-		});
-	}
+  const promise = () =>
+    new Promise(async (resolve, reject) => {
+      try {
+        isLoading.value = true;
+        const copyRequest: any = { source: request.source, destination: request.destination.trim() };
+        await ollama.copy(copyRequest);
+        resolve({ name: request.destination });
+      } catch (error: any) {
+        reject(error);
+      }
+    });
+
+  toast.promise(promise, {
+    loading: 'Copying model...',
+    success: (data: any) => {
+      isLoading.value = false;
+			getModelList();
+			newName.value = '';
+      return `Model copied successfully to ${data.name}`;
+    },
+    error: (error: any) => {
+      console.error(`Error copying model: ${error}`);
+      console.error(error.stack);
+      isLoading.value = false;
+      return `Failed to copy ${request.source} to ${request.destination}: ${error.message}`;
+    },
+  });
 }
 
 async function deleteModel(request: { model: string }) {
