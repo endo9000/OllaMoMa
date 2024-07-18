@@ -35,6 +35,8 @@ This project provides a simple and intuitive way to explore, manage, and interac
 
 To use a different port, just update the "dev" script in the package.json file. For example, change it to "dev": "vite --port 5000" to use port 5000 instead of the default port 4000.
 
+To change the base-URL to match the Ollama endpoint, click on the settings icon and enter your new base-URL. Then hit the apply button and wait for the page to reload. This setting will be stored persistently on your browsers local storage. 
+
 **Contributing:**
 
 Contributions are welcome! Please follow the guidelines in the `CONTRIBUTING.md` file.
