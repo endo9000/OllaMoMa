@@ -1,5 +1,6 @@
 **UI**
 
+- add clear button to search input
 - add ascending/descending indicator to sort options.
 - opening settings should highlight selected theme and sort option
 

@@ -51,8 +51,18 @@ import { Ollama } from 'ollama/browser';
 const mode = useColorMode();
 
 const newName = ref('');
+const ollamomaDebug: string = localStorage.getItem('ollamomaDebug') || 'false';
 
-let baseUrl = 'http://127.0.0.1:11434';
+const newBaseUrl = ref('');
+const baseUrl: string = localStorage.getItem('baseUrl') || 'http://127.0.0.1:11434';
+newBaseUrl.value = baseUrl;
+
+async function setBaseUrl() {
+	console.log(newBaseUrl.value)
+	localStorage.setItem('baseUrl', newBaseUrl.value);
+	location.reload();
+}
+
 const ollama = new Ollama({ host: baseUrl });
 
 const modelList = ref<any[]>([]);
@@ -181,10 +191,6 @@ async function deleteModel(request: { model: string }) {
 let intervalId = null;
 intervalId = setInterval(getProcessList, 1000);
 
-onBeforeUnmount(() => {
-	clearInterval(intervalId);
-});
-
 const filterModel = ref('');
 const sortBy = ref('name');
 const sortOrder = ref('asc');
@@ -231,7 +237,7 @@ const sortedModelList = computed(() => {
 
 const formatSize = (bytes: number) => {
 	if (bytes === 0) return '0 Bytes';
-	const k = 1000;
+	const k = 1024;
 	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 	const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), 3);
 	return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
@@ -281,6 +287,12 @@ const timeLeft = (expiresAt: string) => {
 
 	return timeLeftArray.join(', ');
 };
+
+localStorage.setItem('ollamomaDebug', ollamomaDebug);
+
+onBeforeUnmount(() => {
+	clearInterval(intervalId);
+});
 </script>
 
 <template>
@@ -366,14 +378,16 @@ const timeLeft = (expiresAt: string) => {
 						</ToggleGroupItem>
 					</ToggleGroup>
 
-					<!-- <Separator label="BASE URL" />
-					<div class="flex justify-between gap-1">
+					<Separator
+						label="BASE URL" />
+					<div
+						class="flex justify-between gap-1">
 						<Input
 							name="base-url"
 							class="focus-visible:outline-none"
 							placeholder="Enter Base URL"
-							v-model="baseUrl" />
-						<Button>
+							v-model="newBaseUrl" />
+						<Button @click="setBaseUrl()">
 							<Icon
 								icon="radix-icons:check"
 								class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -381,10 +395,14 @@ const timeLeft = (expiresAt: string) => {
 								icon="radix-icons:check"
 								class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
 						</Button>
-					</div> -->
+					</div>
 
-					<!-- <Separator label="DEBUG" />
-					<div class="flex justify-center">
+					<Separator
+						v-if="ollamomaDebug === 'true'"
+						label="DEBUG" />
+					<div
+						v-if="ollamomaDebug === 'true'"
+						class="flex justify-center">
 						<Button
 							variant="destructive"
 							@click="
@@ -395,7 +413,7 @@ const timeLeft = (expiresAt: string) => {
 							">
 							TRIGGER TOAST
 						</Button>
-					</div> -->
+					</div>
 				</PopoverContent>
 			</Popover>
 		</div>
@@ -597,7 +615,7 @@ const timeLeft = (expiresAt: string) => {
 								</TabsList>
 
 								<TabsContent value="modelinfo_tab">
-									<ul class="grid grid-cols-3 gap-2">
+									<ul class="grid grid-cols-3 gap-1">
 										<li class="px-2 py-1 border rounded w-full text-muted-foreground">
 											Model Name: <br />
 											<div class="font-semibold text-foreground">
@@ -607,13 +625,13 @@ const timeLeft = (expiresAt: string) => {
 										<li class="px-2 py-1 border rounded w-full text-muted-foreground">
 											Model Size: <br />
 											<div class="font-semibold text-foreground">
-											{{ formatSize(model.size) }}
+												{{ formatSize(model.size) }}
 											</div>
 										</li>
 										<li class="px-2 py-1 border rounded w-full text-muted-foreground">
 											Modified At: <br />
 											<div class="font-semibold text-foreground line-clamp-1">
-											{{ formatDateTime(model.modified_at) }}
+												{{ formatDateTime(model.modified_at) }}
 											</div>
 										</li>
 										<li
@@ -628,7 +646,7 @@ const timeLeft = (expiresAt: string) => {
 													.join(' ')
 											}}: <br />
 											<div class="font-semibold text-foreground">
-											{{ value }}
+												{{ value }}
 											</div>
 										</li>
 									</ul>
